@@ -1,25 +1,12 @@
-from id3 import id3
+from id3 import ID3
 import pandas as pd
 
 def read_data():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']
-    categories = {
-        'buying': ['vhigh', 'high', 'med', 'low'],
-        'maint': ['vhigh', 'high', 'med', 'low'],
-        'doors': ['2', '3', '4', '5more'],
-        'persons': ['2', '4', 'more'],
-        'lug_boot': ['small', 'med', 'big'],
-        'safety': ['low', 'med', 'high'],
-        'class': ['unacc', 'acc', 'good', 'vgood']
-    }
-    train = pd.read_csv('data/car/train.csv')
-    test = pd.read_csv('data/car/test.csv')
+    train = pd.read_csv('decision-tree/data/car/train.csv')
+    test = pd.read_csv('decision-tree/data/car/test.csv')
     train.columns = cols
     test.columns = cols
-    train = train.astype('category')
-    test = test.astype('category')
-    train = train.apply(lambda x: x.cat.codes)
-    test = test.apply(lambda x: x.cat.codes)
     train_labels = train['class']
     train = train.drop('class', axis=1)
     test_labels = test['class']
@@ -34,9 +21,10 @@ def avg_error(prediction, labels):
     return (prediction != labels).mean()
 
 def train_test_run(train, test, metric, max_depth):
-    tree = ID3(metric, max_depth).fit(train, train_labels)
-    train_pred = tree.predict(train)
-    test_pred = tree.predict(test)
+    id3 = ID3(metric, max_depth).fit(train, train_labels)
+    print(id3.tree)
+    train_pred = id3.predict(train)
+    test_pred = id3.predict(test)
     train_error = avg_error(train_pred, train_labels)
     test_error = avg_error(test_pred, test_labels)
     return train_error, test_error
