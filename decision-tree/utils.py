@@ -1,30 +1,51 @@
 import numpy as np
 import pandas as pd
 
-def entropy(y: pd.Series):
-    proba = y.value_counts(normalize=True)
+
+def label_proba(y: pd.Series, w: pd.Series = None):
+    proba = pd.DataFrame({'y': y, 'w': w}).groupby('y').sum() / w.sum()
+    return proba['w']
+
+def entropy(proba: pd.Series):
+    if proba.empty:
+        return 0
     return -np.sum(proba * np.log2(proba))
 
-def information_gain(X: pd.DataFrame, y: pd.Series, feature: str):
-    total_entropy = entropy(y)
-    feature_values = X[feature].unique()
-    weights = X[feature].value_counts(normalize=True)
-    subset_entropies = []
-    for value in feature_values:
-        subset = y[X[feature] == value]
-        subset_entropy = entropy(subset)
-        subset_entropies.append(subset_entropy)
-    return total_entropy - np.sum(weights * np.array(subset_entropies))
+def majority_error(proba: pd.Series):
+    if proba.empty:
+        return 0
+    return 1 - proba.max()
 
-def majority_error(y: pd.Series):
-    return 1 - y.value_counts(normalize=True).max()
-
-def gini_index(y: pd.Series):
-    proba = y.value_counts(normalize=True)
+def gini_index(proba: pd.Series):
+    if proba.empty:
+        return 0
     return 1 - np.sum(proba ** 2)
 
-def argmin_min(arr):
-    return min(enumerate(arr), key=lambda x: x[1])
+def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable, w: pd.Series = None):
 
-def argmax_max(arr):
-    return max(enumerate(arr), key=lambda x: x[1])
+
+    if metric_func == entropy:
+        print("Entropy")
+
+    if w is None:
+        w = pd.Series(np.ones(len(y)), index=y.index)
+
+    l_proba = label_proba(y, w)
+    
+    total_metric = metric_func(l_proba)
+    feature_values = X[feature].unique()
+    w_metric_subsets = []
+
+    for value in feature_values:
+        subset_indices = X[feature] == value
+        subset_labels = y[subset_indices]
+        subset_w = w[subset_indices]
+        subset_proba = label_proba(subset_labels, subset_w)
+        subset_metric = metric_func(subset_proba)
+        subset_weight = subset_w.sum() / w.sum()
+        w_metric_subsets.append(subset_metric * subset_weight)
+
+    return total_metric - np.sum(w_metric_subsets)
+
+def argmin(arr):
+    return min(enumerate(arr), key=lambda x: x[1])

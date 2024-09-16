@@ -1,6 +1,6 @@
 
 import numpy as np
-from utils import entropy, information_gain, majority_error, gini_index, argmin_min
+from utils import entropy, information_gain, majority_error, gini_index, argmin
 from tree import Tree, Node
 
 class ID3:
@@ -28,33 +28,32 @@ class ID3:
         self._build_tree_recursive(self.X, self.y, features, self.tree.root)
 
     def _build_tree_recursive(self, X, y, remaining_features, node):
-        # Base case no remaining features
-        if len(remaining_features) == 0:
-            majority_label = y.value_counts().idxmax()
-            node.value = majority_label
-            return
-
-        # Base case all labels are the same
-        if len(np.unique(y)) == 1:
-            return
-
-        # Base case max depth reached
-        if self.tree.get_depth() == self.max_depth:
+        
+        label_counts = y.value_counts().to_dict()
+        majority_label = max(label_counts, key=label_counts.get)
+        
+        # Base cases
+        if len(remaining_features) == 0 or \
+            len(label_counts) == 1 or \
+            self.tree.get_depth() == self.max_depth:
+            node.label = majority_label
+            node.label_counts = label_counts
             return
         
         # Find best feature to split
-        idx, best_feature = self.pick_best_feature(X, y, remaining_features)
+        metric_value, feature_index, best_feature = self.pick_best_feature(X, y, remaining_features)
         feature_values = X[best_feature].unique()
         
         # Add children
         for value in feature_values:
-            child = Node(feature=best_feature, value=value)
-            node.add_child(child)
             subset = X[best_feature] == value
             X_subset = X[subset]
             y_subset = y[subset]
+            split_label_counts = y_subset.value_counts().to_dict()
+            child = Node(feature=best_feature, value=value, label_counts=split_label_counts, metric=metric_value)
+            node.add_child(child)
             new_remaining_features = remaining_features.copy()
-            new_remaining_features.pop(idx)
+            new_remaining_features.pop(feature_index)
             self._build_tree_recursive(X_subset, y_subset, new_remaining_features, child)
 
     def predict(self, X):
@@ -71,8 +70,8 @@ class ID3:
         return None
 
     def pick_best_feature(self, X, y, features):
-        argmin, _ = argmin_min([self.metric_func(X, y, feature) for feature in features])
-        return argmin, features[argmin]
+        idx, minvalue = argmin([self.metric_func(X, y, feature) for feature in features])
+        return minvalue, idx, features[idx]
     
 
     

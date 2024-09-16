@@ -1,13 +1,20 @@
 class Node:
-    def __init__(self, feature=None, value=None):
+    def __init__(self, feature=None, value=None, label_counts=None, label=None, metric=None):
         self.feature = feature
         self.value = value
+        self.label_counts = None
+        self.label = None
+        self.metric = None
         self.children = []
 
     def __repr__(self):
-        feature = self.feature if self.feature is not None else "None"
-        value = self.value if self.value is not None else "None"
-        return f'Node({feature}={value})'
+
+        feature_value = f"{self.feature}={self.value}" if self.feature else ""
+        split = f"split={self.label_counts}" if self.label_counts else ""
+        metric = f"metric={self.metric}" if self.metric else ""
+        label = f"label={self.label}" if self.label else ""
+
+        return f"({feature_value};{split};{metric};{label})"
     
     def add_child(self, node):
         self.children.append(node)
