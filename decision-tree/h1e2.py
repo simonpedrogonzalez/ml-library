@@ -1,5 +1,6 @@
 from id3 import ID3
 import pandas as pd
+from utils import avg_error
 
 def read_data():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']
@@ -17,9 +18,6 @@ def read_data():
 train, train_labels, test, test_labels = read_data()
 metrics = ['infogain', 'majerr', 'gini']
 
-def avg_error(prediction, labels):
-    return (prediction != labels).mean()
-
 def train_test_run(train, test, metric, max_depth):
     id3 = ID3(metric, max_depth).fit(train, train_labels)
     print(id3.tree)
@@ -29,12 +27,16 @@ def train_test_run(train, test, metric, max_depth):
     test_error = avg_error(test_pred, test_labels)
     return train_error, test_error
 
-def report(metric, max_depth, train_error, test_error):
-    print(f"Metric: {metric}, Max Depth: {max_depth}")
-    print(f"Train Error: {train_error}, Test Error: {test_error}")
+def report():
+    metrics = ['infogain', 'majerr', 'gini']
+    max_depths = range(1, 7)
+    rows = []
+    for metric in metrics:
+        for max_depth in max_depths:
+            train_error, test_error = train_test_run(train, test, metric, max_depth)
+            rows.append([metric, max_depth, train_error, test_error])
+    df = pd.DataFrame(rows, columns=['metric', 'max_depth', 'train_error', 'test_error'])
+    df.to_csv('decision-tree/reports/h1e2_report.csv', index=False)
+    df.to_latex('decision-tree/reports/h1e2_report.tex', index=False, longtable=True)
 
-for metric in metrics:
-    for max_depth in range(1, 7):
-        train_error, test_error = train_test_run(train, test, metric, max_depth)
-        report(metric, max_depth, train_error, test_error)
-
+report()

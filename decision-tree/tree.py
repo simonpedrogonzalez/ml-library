@@ -1,20 +1,52 @@
-class Node:
-    def __init__(self, feature=None, value=None, label_counts=None, label=None, metric=None):
+class ID3NodeData:
+    def __init__(self, feature=None, value=None, label=None, label_counts:dict=None, label_proba:dict=None, metric:dict=None, leaf_type:str=None, next_feature:str=None):
         self.feature = feature
         self.value = value
-        self.label_counts = None
-        self.label = None
-        self.metric = None
-        self.children = []
+        self.label = label
+        self.label_counts = label_counts
+        self.label_proba = label_proba
+        self.metric = metric
+        self.leaf_type = leaf_type
+        self.next_feature = next_feature
+
+    def _repr_current_attr(self):
+        if self.feature is None:
+            return f"()"
+        s = f"({self.feature}={self.value}"
+        if self.label_counts is not None:
+            s += f", {self.label_counts}"
+        if self.label_proba is not None:
+            s_proba = "{" + ", ".join([f"{k}: {round(v,3)}" for k, v in self.label_proba.items()]) + "}"
+            s += f", label_proba={s_proba}"
+        s += ")"
+        return s
+    
+    def _repr_next_attr(self):
+        s=""
+        if self.metric is not None:
+            s += f", {list(self.metric.keys())[0]}={round(list(self.metric.values())[0],3)}"
+        if self.label is not None:
+            s += f", label={self.label}"
+        if self.leaf_type is not None:
+            s += f", leaf_type={self.leaf_type}"
+        if self.next_feature is not None:
+            s += f", feature={self.next_feature}"
+        return f"[{s[2:]}]"
 
     def __repr__(self):
+        return self._repr_current_attr() + self._repr_next_attr()
 
-        feature_value = f"{self.feature}={self.value}" if self.feature else ""
-        split = f"split={self.label_counts}" if self.label_counts else ""
-        metric = f"metric={self.metric}" if self.metric else ""
-        label = f"label={self.label}" if self.label else ""
 
-        return f"({feature_value};{split};{metric};{label})"
+class Node:
+    def __init__(self, data=None):
+        self.data = data
+        self.children = []
+        
+    def __repr__(self, level=0):
+        r = "\t" * level + f"{self.data}\n"
+        for child in self.children:
+            r += child.__repr__(level + 1)
+        return r
     
     def add_child(self, node):
         self.children.append(node)
@@ -23,29 +55,6 @@ class Node:
         return len(self.children) == 0
     
     def get_depth(self):
-        return self._get_depth(self)
-    
-    def _get_depth(self, node):
-        if node.is_leaf():
+        if self.is_leaf():
             return 0
-        return 1 + max([self._get_depth(child) for child in node.children])
-
-class Tree:
-    def __init__(self, root):
-        self.root = root
-
-    def __repr__(self):
-        return self._repr_recursive(self.root, 0)
-        
-    def _repr_recursive(self, node, spaces):
-        result = f"{node}"
-        new_spaces = spaces + len(str(node))
-        for i, child in enumerate(node.children):
-            if i == 0:
-                result += f" -> {self._repr_recursive(child, new_spaces)}"
-            else:
-                result += f"\n{' ' * new_spaces} -> {self._repr_recursive(child, new_spaces)}"
-        return result
-
-    def get_depth(self):
-        return self.root.get_depth()
+        return 1 + max([child.get_depth() for child in self.children])

@@ -23,10 +23,6 @@ def gini_index(proba: pd.Series):
 
 def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable, w: pd.Series = None):
 
-
-    if metric_func == entropy:
-        print("Entropy")
-
     if w is None:
         w = pd.Series(np.ones(len(y)), index=y.index)
 
@@ -49,3 +45,9 @@ def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable, w: 
 
 def argmin(arr):
     return min(enumerate(arr), key=lambda x: x[1])
+
+def argmax(arr):
+    return max(enumerate(arr), key=lambda x: x[1])
+
+def avg_error(y_true, y_pred):
+    return np.mean(y_true != y_pred)
