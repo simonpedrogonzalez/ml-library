@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-
 def label_proba(y: pd.Series, w: pd.Series = None):
-    proba = pd.DataFrame({'y': y, 'w': w}).groupby('y').sum() / w.sum()
-    return proba['w']
+    if w is None:
+        return y.value_counts(normalize=True)
+    return w.groupby(y).sum() / w.sum()
 
 def entropy(proba: pd.Series):
     if proba.empty:

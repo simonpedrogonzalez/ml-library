@@ -15,7 +15,14 @@
             "name": "Homework 1 Exercise 2",
             "type": "debugpy",
             "request": "launch",
-            "program": "decision-tree/h1e2.py",
+            "program": "decision-tree/h1e2_cars.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 1 Exercise 3",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "decision-tree/h1e3_bank.py",
             "console": "integratedTerminal"
         },
         {
