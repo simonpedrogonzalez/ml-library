@@ -23,6 +23,8 @@ def gini_index(proba: pd.Series):
 
 def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable, w: pd.Series = None):
 
+    # w is added in case we wanted to use fractional samples
+    # but it's not currently used in id3.py
     if w is None:
         w = pd.Series(np.ones(len(y)), index=y.index)
 

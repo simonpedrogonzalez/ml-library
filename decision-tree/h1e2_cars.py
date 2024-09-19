@@ -37,7 +37,8 @@ def report():
             rows.append([metric, max_depth, train_error, test_error])
             print(f"Progress: {i * len(max_depths) + j + 1}/{total}, Metric: {metric}, Max Depth: {max_depth}")            
     df = pd.DataFrame(rows, columns=['metric', 'max_depth', 'train_error', 'test_error'])
-    df.to_csv('decision-tree/reports/h1e22_report.csv', index=False)
-    df.to_latex('decision-tree/reports/h1e22_report.tex', index=False, longtable=True)
+    print("Exporting report for exercise 2...")
+    df.to_csv('decision-tree/reports/h1e2_report.csv', index=False)
+    df.to_latex('decision-tree/reports/h1e2_report.tex', index=False, longtable=True)
 
 report()

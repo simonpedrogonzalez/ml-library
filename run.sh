@@ -2,9 +2,9 @@
 
 # Exercise 2
 echo "Exercise 2"
-python3 h1e2_cars.py
+python3 decision-tree/h1e2_cars.py
 
 # Exercise 3
 echo "Exercise 3"
-python3 h1e3_bank.py
+python3 decision-tree/h1e3_bank.py
 
