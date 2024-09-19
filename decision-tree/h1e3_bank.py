@@ -2,7 +2,7 @@ from id3 import ID3
 import pandas as pd
 from utils import avg_error
 from time import time
-from preprocessing import transform_num_to_bin_median
+from preprocessing import transform_num_to_bin_median, impute_mode
 
 def read_data():
     cols = columns = [
@@ -25,8 +25,6 @@ def read_data():
         "class"
     ]
 
-    numerical_cols = ['age', 'balance', 'day', 'duration', 'campaign', 'pdays', 'previous']
-
     train = pd.read_csv('decision-tree/data/bank/train.csv')
     test = pd.read_csv('decision-tree/data/bank/test.csv')
     train.columns = cols
@@ -37,8 +35,8 @@ def read_data():
     test = test.drop('class', axis=1)
 
     # Binarize numerical features
-    train = transform_num_to_bin_median(train, numerical_cols)
-    test = transform_num_to_bin_median(test, numerical_cols)
+    train = transform_num_to_bin_median(train)
+    test = transform_num_to_bin_median(test)
 
     return train, train_labels, test, test_labels
 
@@ -54,7 +52,7 @@ def train_test_run(train, test, metric, max_depth):
     test_error = avg_error(test_pred, test_labels)
     return train_error, test_error
 
-def report():
+def report3b():
     metrics = ['infogain', 'majerr', 'gini']
     max_depths = range(1, 17)
     rows = []
@@ -67,7 +65,27 @@ def report():
             print(f"Progress: {i * len(max_depths) + j + 1}/{total}, Metric: {metric}, Max Depth: {max_depth}, Time: {t1 - t0:.2f}s")            
             rows.append([metric, max_depth, train_error, test_error])
     df = pd.DataFrame(rows, columns=['metric', 'max_depth', 'train_error', 'test_error'])
-    df.to_csv('decision-tree/reports/h1e3_report.csv', index=False)
-    df.to_latex('decision-tree/reports/h1e3_report.tex', index=False, longtable=True)
+    df.to_csv('decision-tree/reports/h1e3b_report.csv', index=False)
+    df.to_latex('decision-tree/reports/h1e3b_report.tex', index=False, longtable=True)
 
-report()
+def report3c():
+
+    train_imp = impute_mode(train, "unknown")
+    test_imp = impute_mode(test, "unknown")
+
+    metrics = ['infogain', 'majerr', 'gini']
+    max_depths = range(1, 17)
+    rows = []
+    total = len(metrics) * len(max_depths)
+    for i, metric in enumerate(metrics):
+        for j, max_depth in enumerate(max_depths):
+            t0 = time()
+            train_error, test_error = train_test_run(train_imp, test_imp, metric, max_depth)
+            t1 = time()
+            print(f"Progress: {i * len(max_depths) + j + 1}/{total}, Metric: {metric}, Max Depth: {max_depth}, Time: {t1 - t0:.2f}s")            
+            rows.append([metric, max_depth, train_error, test_error])
+    df = pd.DataFrame(rows, columns=['metric', 'max_depth', 'train_error', 'test_error'])
+    df.to_csv('decision-tree/reports/h1e3c_report.csv', index=False)
+    df.to_latex('decision-tree/reports/h1e3c_report.tex', index=False, longtable=True)
+
+report3c()
