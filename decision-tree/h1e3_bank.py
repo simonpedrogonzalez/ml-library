@@ -38,6 +38,7 @@ def read_data():
     # This is not done in id3 code because
     # it should be a preprocessing step, not part
     # of the ID3 algorithm.
+    # Note: in this dataset, numerical cols do not have missing ("unknown") values.
     train = transform_num_to_bin_median(train)
     test = transform_num_to_bin_median(test)
 
