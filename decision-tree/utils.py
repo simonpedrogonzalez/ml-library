@@ -1,49 +1,45 @@
 import numpy as np
 import pandas as pd
 
-def label_proba(y: pd.Series, w: pd.Series = None):
-    if w is None:
-        return y.value_counts(normalize=True)
-    return w.groupby(y).sum() / w.sum()
+# @profile
+def label_proba(y):
+    _, counts = np.unique(y, return_counts=True)
+    proba = counts / len(y)
+    return proba
 
-def entropy(proba: pd.Series):
-    if proba.empty:
+def entropy(proba):
+    if len(proba) == 0:
         return 0
     return -np.sum(proba * np.log2(proba))
 
-def majority_error(proba: pd.Series):
-    if proba.empty:
+def majority_error(proba):
+    if len(proba) == 0:
         return 0
     return 1 - proba.max()
 
-def gini_index(proba: pd.Series):
-    if proba.empty:
+def gini_index(proba):
+    if len(proba) == 0:
         return 0
     return 1 - np.sum(proba ** 2)
 
-def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable, w: pd.Series = None):
+# @profile
+def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable):
+    X = X[feature].values
+    y = y.values
+    total_metric = metric_func(label_proba(y))
+    feature_values = np.unique(X)
+    w_metric_subsets = np.empty(len(feature_values))
+    total = len(y)
 
-    # w is added in case we wanted to use fractional samples
-    # but it's not currently used in id3.py
-    if w is None:
-        w = pd.Series(np.ones(len(y)), index=y.index)
-
-    l_proba = label_proba(y, w)
-    
-    total_metric = metric_func(l_proba)
-    feature_values = X[feature].unique()
-    w_metric_subsets = []
-
-    for value in feature_values:
-        subset_indices = X[feature] == value
-        subset_labels = y[subset_indices]
-        subset_w = w[subset_indices]
-        subset_proba = label_proba(subset_labels, subset_w)
+    for i, value in enumerate(feature_values):
+        subset_labels = y[X == value]
+        subset_proba = label_proba(subset_labels)
         subset_metric = metric_func(subset_proba)
-        subset_weight = subset_w.sum() / w.sum()
-        w_metric_subsets.append(subset_metric * subset_weight)
+        subset_weight = len(subset_labels) / total
+        w_metric_subsets[i] = subset_metric * subset_weight
 
     return total_metric - np.sum(w_metric_subsets)
+    
 
 def argmin(arr):
     return min(enumerate(arr), key=lambda x: x[1])
