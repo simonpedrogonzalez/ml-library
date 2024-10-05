@@ -59,14 +59,14 @@ def avg_error(y_true, y_pred):
 class CatEncodedSeries:
 
     def __init__(self):
-        self.series = None
+        self.values = None
         self.categories = None
         self.category_index = None
         self.c2s = None
         self.s2c = None
     
     def from_pandas(self, series: pd.Series):
-        self.series, self.categories, self.category_index, self.c2s, self.s2c = self._encode(series)
+        self.values, self.categories, self.category_index, self.c2s, self.s2c = self._encode(series)
         return self
 
     def _encode(self, series: pd.Series):

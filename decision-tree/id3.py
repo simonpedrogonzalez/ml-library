@@ -32,7 +32,7 @@ class ID3:
             labels = CatEncodedSeries().from_pandas(labels)
         if not isinstance(labels, CatEncodedSeries):
             raise ValueError('Invalid labels type')
-        self.y = labels.series
+        self.y = labels.values
         self.label_values = labels.categories
         self.label_index = labels.category_index
         self.lc2s = labels.c2s
@@ -89,6 +89,7 @@ class ID3:
                 child = Node(ID3NodeData(
                     leaf_type = "empty_subset",
                     label = majority_label_name,
+                    label_index = majority_label,
                     feature = best_feature_name,
                     value = value_name,
                     value_index = value,
@@ -120,37 +121,37 @@ class ID3:
         if self.tree is None:
             raise ValueError('Model not fitted')
         if isinstance(X, pd.DataFrame):
-            pred_func = self._predict_values
+            return self._predict_df(X, self.tree)
         elif isinstance(X, CatEncodedDataFrame):
-            pred_func = self._predict_idx
             X = X.X
+            return self._predict_encoded_ndarray(X, self.tree)
         else:
             raise ValueError('Invalid input type')
-        predictions = []
-        for _, row in X.iterrows():
-            predictions.append(pred_func(row, self.tree))
-        if isinstance(X, pd.DataFrame):
-            return pd.Series(predictions)
-        return np.array(predictions)
+    
+    def _predict_encoded_ndarray(self, X: np.ndarray, node):
+        return np.array([self._predict_idx_one(row, node) for row in X])
+    
+    def _predict_df(self, X: pd.DataFrame, node):
+        return pd.Series([self._predict_value_one(row, node) for _, row in X.iterrows()])
         
-    def _predict_idx(self, row: np.ndarray, node):
+    def _predict_idx_one(self, row: np.ndarray, node):
         if node.is_leaf():
             return node.data.label_index
         feature = node.data.next_feature_index
         value = row[feature]
         for child in node.children:
             if child.data.value_index == value:
-                return self._predict_idx(row, child)
+                return self._predict_idx_one(row, child)
         raise ValueError(f"Value {value} not found")
 
-    def _predict_values(self, row: pd.Series, node):
+    def _predict_value_one(self, row: pd.Series, node):
         if node.is_leaf():
             return node.data.label
         feature = node.data.next_feature
         value = row[feature]
         for child in node.children:
             if child.data.value == value:
-                return self._predict_values(row, child)
+                return self._predict_value_one(row, child)
         raise ValueError(f"Value {value} not found")
 
     def _pick_best_feature(self, X, y, features):

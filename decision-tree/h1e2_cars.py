@@ -1,6 +1,6 @@
 from id3 import ID3
 import pandas as pd
-from utils import avg_error
+from utils import avg_error, CatEncodedSeries, CatEncodedDataFrame
 
 def read_data():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']
@@ -14,16 +14,24 @@ def read_data():
     test = test.drop('class', axis=1)
     return train, train_labels, test, test_labels
 
+def preprocess_data(train, train_labels, test, test_labels):
+    train = CatEncodedDataFrame().from_pandas(train)
+    train_labels = CatEncodedSeries().from_pandas(train_labels)
+    test = CatEncodedDataFrame().from_pandas(test)
+    test_labels = CatEncodedSeries().from_pandas(test_labels)
+    return train, train_labels, test, test_labels
 
-train, train_labels, test, test_labels = read_data()
+# train2, train_labels2, test2, test_labels2 = preprocess_data(*read_data())
+train, train_labels, test, test_labels = preprocess_data(*read_data())
 metrics = ['infogain', 'majerr', 'gini']
 
 def train_test_run(train, test, metric, max_depth):
     id3 = ID3(metric, max_depth).fit(train, train_labels)
     train_pred = id3.predict(train)
     test_pred = id3.predict(test)
-    train_error = avg_error(train_pred, train_labels)
-    test_error = avg_error(test_pred, test_labels)
+    train_error = avg_error(train_pred, train_labels.values)
+    test_error = avg_error(test_pred, test_labels.values)
+
     return train_error, test_error
 
 def report():
