@@ -1,6 +1,7 @@
 from id3 import ID3
 import pandas as pd
-from utils import avg_error, CatEncodedSeries, CatEncodedDataFrame
+from utils import avg_error
+from preprocessing import CatEncodedSeries, CatEncodedDataFrame
 
 def read_data():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']

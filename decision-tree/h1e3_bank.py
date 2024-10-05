@@ -1,6 +1,7 @@
 from id3 import ID3
 import pandas as pd
-from utils import avg_error, CatEncodedDataFrame, CatEncodedSeries
+from utils import avg_error
+from preprocessing import CatEncodedDataFrame, CatEncodedSeries
 from time import time
 from preprocessing import transform_num_to_bin_median, impute_mode
 
@@ -122,9 +123,5 @@ def report3c():
     df.to_csv('decision-tree/reports/h1e3c_report.csv', index=False)
     df.to_latex('decision-tree/reports/h1e3c_report.tex', index=False, longtable=True)
 
-
 report3b()
 report3c()
-# train, train_labels, test, test_labels = with_unknown
-# id3 = ID3('infogain', 3).fit(train, train_labels)
-# print(id3.tree)
