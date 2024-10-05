@@ -65,6 +65,7 @@ def cat_series_to_np(series: pd.Series):
     s2c = {v: i for i, v in enumerate(categories)}
     return s.cat.codes.values, categories, list(range(len(categories))), c2s, s2c
 
+@profile
 def cat_df_to_np(X: pd.DataFrame):
     features = X.columns.tolist()
     feature_index = list(range(len(features)))
@@ -72,7 +73,7 @@ def cat_df_to_np(X: pd.DataFrame):
     c2s = {}
     s2c = {}
     encoded_X = X.copy()
-    encoded_X = encoded_X.apply(lambda x: x.astype('category'))
+    encoded_X = X.astype('category')
     for i, (name, col) in enumerate(encoded_X.items()):
         feature_values[i] = []
         for j, v in enumerate(col.cat.categories):
@@ -81,10 +82,12 @@ def cat_df_to_np(X: pd.DataFrame):
             feature_values[i].append(j)
         encoded_X[name] = col.cat.codes
     encoded_X = encoded_X.values
-    # encoded_X = encoded_X.apply(lambda x: x.cat.codes).values
-    # test: use c2s to decode encoded_X and check if the resulting df is the same as X
+    # test_cat_df_to_np(encoded_X, features, c2s)
+    return encoded_X, features, feature_index, feature_values, c2s, s2c
+
+
+def test_cat_df_to_np(encoded_X, features, c2s):
     decoded_X = pd.DataFrame(encoded_X, columns=features)
     for name, col in decoded_X.items():
         decoded_X[name] = decoded_X[name].apply(lambda x: c2s[(name, x)])
     assert X.equals(decoded_X)
-    return encoded_X, features, feature_index, feature_values, c2s, s2c
