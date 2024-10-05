@@ -17,6 +17,7 @@ class ID3:
             raise ValueError('Invalid metric')
         self.tree = None
 
+    # @profile
     def fit(self, X: pd.DataFrame, y: pd.Series):
         self.X, self.features, self.feature_index, \
             self.feature_values, self.c2s, self.s2c = cat_df_to_np(X)
@@ -122,8 +123,12 @@ class ID3:
                 return self._predict(row, child)
         raise ValueError(f"Value {value} not found")
 
+    # @profile
     def _pick_best_feature(self, X, y, features):
-        gains = np.array([gain(X, y, feature, self.metric) for feature in features])
+        gains = np.array([
+            gain(X, y, feature, self.feature_values[feature], self.metric) \
+                for feature in features
+            ])
         idx = np.argmax(gains)
         minvalue = gains[idx]
         return minvalue, idx, features[idx]
