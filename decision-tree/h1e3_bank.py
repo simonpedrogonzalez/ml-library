@@ -51,8 +51,8 @@ def preprocess_data(train, train_labels, test, test_labels):
     # numerical features.
     train_imp = train.copy()
     test_imp = test.copy()
-    train_imp = impute_mode(train, "unknown")
-    test_imp = impute_mode(test, "unknown")
+    train_imp = impute_mode(train_imp, "unknown")
+    test_imp = impute_mode(test_imp, "unknown")
 
     train_imp = CatEncodedDataFrame().from_pandas(train_imp)
     test_imp = CatEncodedDataFrame().from_pandas(test_imp)
@@ -123,8 +123,8 @@ def report3c():
     df.to_latex('decision-tree/reports/h1e3c_report.tex', index=False, longtable=True)
 
 
-# report3b()
-# report3c()
-train, train_labels, test, test_labels = with_unknown
-id3 = ID3('infogain', 3).fit(train, train_labels)
-print(id3.tree)
+report3b()
+report3c()
+# train, train_labels, test, test_labels = with_unknown
+# id3 = ID3('infogain', 3).fit(train, train_labels)
+# print(id3.tree)
