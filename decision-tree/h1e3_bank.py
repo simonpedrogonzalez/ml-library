@@ -1,6 +1,6 @@
 from id3 import ID3
 import pandas as pd
-from utils import avg_error
+from utils import avg_error, CatEncodedDataFrame, CatEncodedSeries
 from time import time
 from preprocessing import transform_num_to_bin_median, impute_mode
 
@@ -34,6 +34,9 @@ def read_data():
     test_labels = test['class']
     test = test.drop('class', axis=1)
 
+    return train, train_labels, test, test_labels
+
+def preprocess_data(train, train_labels, test, test_labels):
     # Binarize numerical features
     # This is not done in id3 code because
     # it should be a preprocessing step, not part
@@ -42,17 +45,37 @@ def read_data():
     train = transform_num_to_bin_median(train)
     test = transform_num_to_bin_median(test)
 
-    return train, train_labels, test, test_labels
+    # Create copies with impute values
+    # Impute unknown values with the most common value
+    # for each column. This is done after binarizing the
+    # numerical features.
+    train_imp = train.copy()
+    test_imp = test.copy()
+    train_imp = impute_mode(train, "unknown")
+    test_imp = impute_mode(test, "unknown")
 
-train, train_labels, test, test_labels = read_data()
+    train_imp = CatEncodedDataFrame().from_pandas(train_imp)
+    test_imp = CatEncodedDataFrame().from_pandas(test_imp)
+
+    train = CatEncodedDataFrame().from_pandas(train)
+    train_labels = CatEncodedSeries().from_pandas(train_labels)
+    test = CatEncodedDataFrame().from_pandas(test)
+    test_labels = CatEncodedSeries().from_pandas(test_labels)
+
+    with_unknown = (train, train_labels, test, test_labels)
+    with_imp_values = (train_imp, train_labels, test_imp, test_labels)
+
+    return with_unknown, with_imp_values
+
+with_unknown, with_imp_values = preprocess_data(*read_data())
 metrics = ['infogain', 'majerr', 'gini']
 
-def train_test_run(train, test, metric, max_depth):
+def train_test_run(train, test, metric, max_depth, train_labels, test_labels):
     id3 = ID3(metric, max_depth).fit(train, train_labels)
     train_pred = id3.predict(train)
     test_pred = id3.predict(test)
-    train_error = avg_error(train_pred, train_labels)
-    test_error = avg_error(test_pred, test_labels)
+    train_error = avg_error(train_pred, train_labels.values)
+    test_error = avg_error(test_pred, test_labels.values)
     return train_error, test_error
 
 def report3b():
@@ -60,6 +83,7 @@ def report3b():
     for the bank marketing dataset. Export the results of the train
     and test errors to a CSV file and a LaTeX table.
     """
+    train, train_labels, test, test_labels = with_unknown
     metrics = ['infogain', 'majerr', 'gini']
     max_depths = range(1, 17)
     rows = []
@@ -67,7 +91,7 @@ def report3b():
     for i, metric in enumerate(metrics):
         for j, max_depth in enumerate(max_depths):
             t0 = time()
-            train_error, test_error = train_test_run(train, test, metric, max_depth)
+            train_error, test_error = train_test_run(train, test, metric, max_depth, train_labels, test_labels)
             t1 = time()
             print(f"Progress: {i * len(max_depths) + j + 1}/{total}, Metric: {metric}, Max Depth: {max_depth}, Time: {t1 - t0:.2f}s")            
             rows.append([metric, max_depth, train_error, test_error])
@@ -80,12 +104,7 @@ def report3c():
     """ Run the same experiment as report3b but using
     imputed data instead of the unknown class.
     """
-
-    # Impute unknown values with the most common value
-    # for each column. This is done after binarizing the
-    # numerical features.
-    train_imp = impute_mode(train, "unknown")
-    test_imp = impute_mode(test, "unknown")
+    train_imp, train_labels, test_imp, test_labels = with_imp_values
 
     metrics = ['infogain', 'majerr', 'gini']
     max_depths = range(1, 17)
@@ -94,7 +113,7 @@ def report3c():
     for i, metric in enumerate(metrics):
         for j, max_depth in enumerate(max_depths):
             t0 = time()
-            train_error, test_error = train_test_run(train_imp, test_imp, metric, max_depth)
+            train_error, test_error = train_test_run(train_imp, test_imp, metric, max_depth, train_labels, test_labels)
             t1 = time()
             print(f"Progress: {i * len(max_depths) + j + 1}/{total}, Metric: {metric}, Max Depth: {max_depth}, Time: {t1 - t0:.2f}s")            
             rows.append([metric, max_depth, train_error, test_error])
@@ -104,5 +123,8 @@ def report3c():
     df.to_latex('decision-tree/reports/h1e3c_report.tex', index=False, longtable=True)
 
 
-report3b()
-report3c()
+# report3b()
+# report3c()
+train, train_labels, test, test_labels = with_unknown
+id3 = ID3('infogain', 3).fit(train, train_labels)
+print(id3.tree)

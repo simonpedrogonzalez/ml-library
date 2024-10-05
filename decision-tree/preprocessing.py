@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def transform_num_to_bin_median(X):
+def transform_num_to_bin_median(X: pd.DataFrame):
     """
     Binarize numerical features in a DataFrame using median.
     """
@@ -9,10 +9,12 @@ def transform_num_to_bin_median(X):
         if X[feature].dtype.kind in 'iufc': # integer, unsigned integer, float, complex
             median = X[feature].median()
             # binarize numerical features with the median
-            X[feature] = np.where(X[feature] > median, '>Me', '<=Me')
+            leq_median_str = f'<= {median:.2f}'
+            gt_median_str = f'> {median:.2f}'
+            X[feature] = np.where(X[feature] > median, gt_median_str, leq_median_str)
     return X
 
-def impute_mode(X, nan_value=None):
+def impute_mode(X: pd.DataFrame, nan_value=None):
     """
     Impute missing values with the most common value in each column.
     Does not work for continuous numerical features.

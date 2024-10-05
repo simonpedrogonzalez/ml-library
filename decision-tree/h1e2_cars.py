@@ -25,7 +25,7 @@ def preprocess_data(train, train_labels, test, test_labels):
 train, train_labels, test, test_labels = preprocess_data(*read_data())
 metrics = ['infogain', 'majerr', 'gini']
 
-@profile
+# @profile
 def train_test_run(train, test, metric, max_depth):
     id3 = ID3(metric, max_depth).fit(train, train_labels)
     train_pred = id3.predict(train)
