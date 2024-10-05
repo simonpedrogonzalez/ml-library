@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-# @profile
 def unique_proba(y: np.ndarray):
     # assume int array and use bincount, is about 7 times faster than np.unique
     # and orders of magnitude faster than pd.Series.value_counts
@@ -11,7 +10,6 @@ def unique_proba(y: np.ndarray):
     proba = counts / len(y)
     values = non_zero[0]
     return values, counts, proba
-
 
 def entropy(proba):
     if len(proba) == 0:
@@ -28,7 +26,6 @@ def gini_index(proba):
         return 0
     return 1 - np.sum(proba ** 2)
 
-# @profile
 def gain(X: np.ndarray, y: np.ndarray, feature: int, feature_values: list, metric_func: callable):
     X = X[:,feature]
     n = len(y)
@@ -77,8 +74,6 @@ class CatEncodedSeries:
         s2c = {v: i for i, v in enumerate(categories)}
         return s.cat.codes.values, categories, list(range(len(categories))), c2s, s2c
 
-
-
 class CatEncodedDataFrame:
     def __init__(self):
         self.X = None
@@ -116,7 +111,6 @@ class CatEncodedDataFrame:
         encoded_X = encoded_X.values
         # test_cat_df_to_np(encoded_X, features, c2s)
         return encoded_X, features, feature_index, feature_values, c2s, s2c
-
 
     def _decode(self, encoded_X, features, c2s):
         decoded_X = pd.DataFrame(encoded_X, columns=features)

@@ -133,19 +133,7 @@ class ID3:
     
     def _predict_df(self, X: pd.DataFrame, node):
         return pd.Series([self._predict_value_one(row, node) for _, row in X.iterrows()])
-        
-    # @profile
-    # def _predict_idx_one(self, row: np.ndarray, node):
-    #     if node.is_leaf():
-    #         return node.data.label_index
-    #     feature = node.data.next_feature_index
-    #     value = row[feature]
-    #     for child in node.children:
-    #         if child.data.value_index == value:
-    #             return self._predict_idx_one(row, child)
-    #     raise ValueError(f"Value {value} not found")
 
-    # @profile
     def _predict_idx_one(self, row: np.ndarray, node):
         if node.is_leaf:
             return node.data.label_index
