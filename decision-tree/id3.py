@@ -1,7 +1,7 @@
 
 import numpy as np
 import pandas as pd
-from utils import gain, entropy, majority_error, gini_index, cat_series_to_np, cat_df_to_np, unique_proba
+from utils import gain, entropy, majority_error, gini_index, CatEncodedDataFrame, CatEncodedSeries, unique_proba
 from tree import Node, ID3NodeData
 
 class ID3:
@@ -17,22 +17,32 @@ class ID3:
             raise ValueError('Invalid metric')
         self.tree = None
 
-    # @profile
+    def _preprocess(self, data, labels):
+        if isinstance(data, pd.DataFrame):
+            data = CatEncodedDataFrame().from_pandas(data)
+        if not isinstance(data, CatEncodedDataFrame):
+            raise ValueError('Invalid data type')
+        self.X = data.X
+        self.features = data.features
+        self.feature_index = data.feature_index
+        self.feature_values = data.feature_values
+        self.c2s = data.c2s
+        self.s2c = data.s2c
+        if isinstance(labels, pd.Series):
+            labels = CatEncodedSeries().from_pandas(labels)
+        if not isinstance(labels, CatEncodedSeries):
+            raise ValueError('Invalid labels type')
+        self.y = labels.series
+        self.label_values = labels.categories
+        self.label_index = labels.category_index
+        self.lc2s = labels.c2s
+        self.ls2c = labels.s2c
+
     def fit(self, X: pd.DataFrame, y: pd.Series):
-        self.X, self.features, self.feature_index, \
-            self.feature_values, self.c2s, self.s2c = cat_df_to_np(X)
-        self.y, self.label_values, self.label_index, \
-            self.lc2s, self.ls2c = cat_series_to_np(y)
-        # self.preprocess(X, y)
-        # self.X = X
-        # self.y = y
-        # self.labels = y.unique()
-        # self.features = X.columns.tolist()
-        # self.feature_values = {feature: X[feature].unique() for feature in self.features}
+        self._preprocess(X, y)
         self.tree = self._build_tree(self.X, self.y, self.feature_index, 0)
         return self
 
-    # @profile
     def _build_tree(self, X: np.ndarray, y:np.ndarray, features:list, depth:int):
 
         node = Node(ID3NodeData())
@@ -53,6 +63,7 @@ class ID3:
         if base_case is not None:
             node.data.leaf_type = base_case
             node.data.label = majority_label_name
+            node.data.label_index = majority_label
             node.data.label_counts = {k: v for k, v in zip(label_values, label_counts)}
             node.data.label_proba = {k: v for k, v in zip(label_values, label_proba)}
             return node
@@ -62,6 +73,7 @@ class ID3:
         best_feature_name = self.features[best_feature]
 
         node.data.next_feature = best_feature_name
+        node.data.next_feature_index = best_feature
         node.data.metric = { self.metric.__name__: metric_value }
 
         # Get all possible values, not only the ones currently in X
@@ -70,13 +82,6 @@ class ID3:
         # Add children
         for value in feature_values:
             value_name = self.c2s[(best_feature_name, value)]
-
-            # if best_feature_name == 'doors':
-            #     print('here')
-
-            # if value_name == '5more':
-            #     print('here')
-
             subset = X[:, best_feature] == value
             X_subset = X[subset]
 
@@ -85,7 +90,9 @@ class ID3:
                     leaf_type = "empty_subset",
                     label = majority_label_name,
                     feature = best_feature_name,
-                    value = value_name
+                    value = value_name,
+                    value_index = value,
+                    feature_index = best_feature
                 ))
                 node.add_child(child)
                 continue
@@ -98,7 +105,9 @@ class ID3:
 
             # add the data to the child node
             child.data.feature = best_feature_name
+            child.data.feature_index = best_feature
             child.data.value = value_name
+            child.data.value_index = value
             child_label_values, child_label_counts, child_label_proba = unique_proba(y_subset)
             child.data.label_counts = {k: v for k, v in zip(child_label_values, child_label_counts)}
             child.data.label_proba = {k: v for k, v in zip(child_label_values, child_label_proba)}
@@ -107,23 +116,43 @@ class ID3:
 
         return node
 
-    def predict(self, X):
+    def predict(self, X: pd.DataFrame):
+        if self.tree is None:
+            raise ValueError('Model not fitted')
+        if isinstance(X, pd.DataFrame):
+            pred_func = self._predict_values
+        elif isinstance(X, CatEncodedDataFrame):
+            pred_func = self._predict_idx
+            X = X.X
+        else:
+            raise ValueError('Invalid input type')
         predictions = []
         for _, row in X.iterrows():
-            predictions.append(self._predict(row, self.tree))
-        return pd.Series(predictions)
+            predictions.append(pred_func(row, self.tree))
+        if isinstance(X, pd.DataFrame):
+            return pd.Series(predictions)
+        return np.array(predictions)
+        
+    def _predict_idx(self, row: np.ndarray, node):
+        if node.is_leaf():
+            return node.data.label_index
+        feature = node.data.next_feature_index
+        value = row[feature]
+        for child in node.children:
+            if child.data.value_index == value:
+                return self._predict_idx(row, child)
+        raise ValueError(f"Value {value} not found")
 
-    def _predict(self, row, node):
+    def _predict_values(self, row: pd.Series, node):
         if node.is_leaf():
             return node.data.label
         feature = node.data.next_feature
         value = row[feature]
         for child in node.children:
             if child.data.value == value:
-                return self._predict(row, child)
+                return self._predict_values(row, child)
         raise ValueError(f"Value {value} not found")
 
-    # @profile
     def _pick_best_feature(self, X, y, features):
         gains = np.array([
             gain(X, y, feature, self.feature_values[feature], self.metric) \
@@ -132,5 +161,3 @@ class ID3:
         idx = np.argmax(gains)
         minvalue = gains[idx]
         return minvalue, idx, features[idx]
-
-

@@ -1,5 +1,5 @@
 class ID3NodeData:
-    def __init__(self, feature=None, value=None, label=None, label_counts:dict=None, label_proba:dict=None, metric:dict=None, leaf_type:str=None, next_feature:str=None):
+    def __init__(self, feature=None, feature_index=None, value=None, value_index=None, label=None, label_index=None, label_counts:dict=None, label_proba:dict=None, metric:dict=None, leaf_type:str=None, next_feature:str=None):
         self.feature = feature
         self.value = value
         self.label = label
@@ -8,6 +8,9 @@ class ID3NodeData:
         self.metric = metric
         self.leaf_type = leaf_type
         self.next_feature = next_feature
+        self.feature_index = feature_index
+        self.value_index = value_index
+        self.label_index = label_index
 
     def _repr_current_attr(self):
         if self.feature is None:
