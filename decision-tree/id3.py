@@ -30,9 +30,9 @@ class ID3:
 
         node = Node(ID3NodeData())
 
-        label_counts = y.value_counts().to_dict()
-        label_proba = y.value_counts(normalize=True).to_dict()
-        majority_label = max(label_counts, key=label_counts.get)
+        lavel_values, label_counts = np.unique(y, return_counts=True)
+        label_proba = label_counts / len(y)
+        majority_label =  lavel_values[np.argmax(label_counts)]
         
         # Base cases
         base_case = None
@@ -46,8 +46,8 @@ class ID3:
         if base_case is not None:
             node.data.leaf_type = base_case
             node.data.label = majority_label
-            node.data.label_counts = label_counts
-            node.data.label_proba = label_proba
+            node.data.label_counts = {k: v for k, v in zip(lavel_values, label_counts)}
+            node.data.label_proba = {k: v for k, v in zip(lavel_values, label_proba)}
             return node
         
         # Find best feature to split
@@ -83,8 +83,10 @@ class ID3:
             # add the data to the child node
             child.data.feature = best_feature
             child.data.value = value
-            child.data.label_counts = y_subset.value_counts().to_dict()
-            child.data.label_proba = y_subset.value_counts(normalize=True).to_dict()
+            child_label_values, child_label_counts = np.unique(y_subset, return_counts=True)
+            child_label_proba = child_label_counts / len(y_subset)
+            child.data.label_counts = {k: v for k, v in zip(child_label_values, child_label_counts)}
+            child.data.label_proba = {k: v for k, v in zip(child_label_values, child_label_proba)}
 
             node.add_child(child)
 
@@ -107,7 +109,9 @@ class ID3:
         raise ValueError(f"Value {value} not found")
 
     def _pick_best_feature(self, X, y, features):
-        idx, minvalue = argmax([gain(X, y, feature, self.metric) for feature in features])
+        gains = np.array([gain(X, y, feature, self.metric) for feature in features])
+        idx = np.argmax(gains)
+        minvalue = gains[idx]
         return minvalue, idx, features[idx]
     
 
