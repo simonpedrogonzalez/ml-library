@@ -134,24 +134,38 @@ class ID3:
     def _predict_df(self, X: pd.DataFrame, node):
         return pd.Series([self._predict_value_one(row, node) for _, row in X.iterrows()])
         
+    # @profile
+    # def _predict_idx_one(self, row: np.ndarray, node):
+    #     if node.is_leaf():
+    #         return node.data.label_index
+    #     feature = node.data.next_feature_index
+    #     value = row[feature]
+    #     for child in node.children:
+    #         if child.data.value_index == value:
+    #             return self._predict_idx_one(row, child)
+    #     raise ValueError(f"Value {value} not found")
+
+    # @profile
     def _predict_idx_one(self, row: np.ndarray, node):
-        if node.is_leaf():
+        if node.is_leaf:
             return node.data.label_index
         feature = node.data.next_feature_index
         value = row[feature]
-        for child in node.children:
-            if child.data.value_index == value:
-                return self._predict_idx_one(row, child)
+        child = node.children.get((feature, value))
+        if child is not None:
+            return self._predict_idx_one(row, child)
         raise ValueError(f"Value {value} not found")
 
     def _predict_value_one(self, row: pd.Series, node):
-        if node.is_leaf():
+        if node.is_leaf:
             return node.data.label
+        feature_index = node.data.next_feature_index
         feature = node.data.next_feature
         value = row[feature]
-        for child in node.children:
-            if child.data.value == value:
-                return self._predict_value_one(row, child)
+        value_index = self.s2c[(feature, value)]
+        child = node.children.get((feature_index, value_index))
+        if child is not None:
+            return self._predict_value_one(row, child)
         raise ValueError(f"Value {value} not found")
 
     def _pick_best_feature(self, X, y, features):

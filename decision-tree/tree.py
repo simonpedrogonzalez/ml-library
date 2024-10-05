@@ -43,21 +43,21 @@ class ID3NodeData:
 class Node:
     def __init__(self, data=None):
         self.data = data
-        self.children = []
+        self.children = {}
+        self.is_leaf = True
         
     def __repr__(self, level=0):
         r = "\t" * level + f"{self.data}\n"
-        for child in self.children:
+        for child in self.children.values():
             r += child.__repr__(level + 1)
         return r
     
     def add_child(self, node):
-        self.children.append(node)
+        fi, vi = node.data.feature_index, node.data.value_index
+        self.children[(fi, vi)] = node
+        self.is_leaf = False
     
-    def is_leaf(self):
-        return len(self.children) == 0
-    
-    def get_depth(self):
-        if self.is_leaf():
-            return 0
-        return 1 + max([child.get_depth() for child in self.children])
+    # def get_depth(self):
+    #     if self.is_leaf():
+    #         return 0
+    #     return 1 + max([child.get_depth() for child in self.children])
