@@ -1,6 +1,18 @@
 import numpy as np
 import pandas as pd
 
+# @profile
+def unique_proba(y: np.ndarray):
+    # assume int array and use bincount, is about 7 times faster than np.unique
+    # and orders of magnitude faster than pd.Series.value_counts
+    counts = np.bincount(y)
+    non_zero = counts.nonzero()
+    counts = counts[non_zero]
+    proba = counts / len(y)
+    values = non_zero[0]
+    return values, counts, proba
+
+
 def entropy(proba):
     if len(proba) == 0:
         return 0
@@ -17,12 +29,10 @@ def gini_index(proba):
     return 1 - np.sum(proba ** 2)
 
 @profile
-def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable):
-    X = X[feature].values
-    y = y.values
+def gain(X: np.ndarray, y: np.ndarray, feature: str, metric_func: callable):
+    X = X[:,feature]
     n = len(y)
-    _, y_counts = np.unique(y, return_counts=True)
-    y_proba = y_counts / n
+    _, y_counts, y_proba = unique_proba(y)
     total_metric = metric_func(y_proba)
     feature_values = np.unique(X)
     w_metric_subsets = np.empty(len(feature_values))
@@ -30,8 +40,7 @@ def gain(X: pd.DataFrame, y: pd.Series, feature: str, metric_func: callable):
     for i, value in enumerate(feature_values):
         subset_labels = y[X == value]
         n_subset = len(subset_labels)
-        _, subset_counts = np.unique(subset_labels, return_counts=True)
-        subset_proba = subset_counts / n_subset
+        _, _, subset_proba = unique_proba(subset_labels)
         subset_metric = metric_func(subset_proba)
         subset_weight = n_subset / n
         w_metric_subsets[i] = subset_metric * subset_weight
@@ -47,3 +56,35 @@ def argmax(arr):
 
 def avg_error(y_true, y_pred):
     return np.mean(y_true != y_pred)
+
+def cat_series_to_np(series: pd.Series):
+    name = series.name
+    s = series.astype('category')
+    categories = s.cat.categories
+    c2s = {i: v for i, v in enumerate(categories)}
+    s2c = {v: i for i, v in enumerate(categories)}
+    return s.cat.codes.values, categories, list(range(len(categories))), c2s, s2c
+
+def cat_df_to_np(X: pd.DataFrame):
+    features = X.columns.tolist()
+    feature_index = list(range(len(features)))
+    feature_values = {}
+    c2s = {}
+    s2c = {}
+    encoded_X = X.copy()
+    encoded_X = encoded_X.apply(lambda x: x.astype('category'))
+    for i, (name, col) in enumerate(encoded_X.items()):
+        feature_values[i] = []
+        for j, v in enumerate(col.cat.categories):
+            c2s[(name, j)] = v
+            s2c[(name, v)] = j
+            feature_values[i].append(j)
+        encoded_X[name] = col.cat.codes
+    encoded_X = encoded_X.values
+    # encoded_X = encoded_X.apply(lambda x: x.cat.codes).values
+    # test: use c2s to decode encoded_X and check if the resulting df is the same as X
+    decoded_X = pd.DataFrame(encoded_X, columns=features)
+    for name, col in decoded_X.items():
+        decoded_X[name] = decoded_X[name].apply(lambda x: c2s[(name, x)])
+    assert X.equals(decoded_X)
+    return encoded_X, features, feature_index, feature_values, c2s, s2c
