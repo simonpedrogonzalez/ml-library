@@ -1,9 +1,9 @@
 
 import numpy as np
 import pandas as pd
-from utils import gain, entropy, majority_error, gini_index, unique_proba
-from preprocessing import CatEncodedDataFrame, CatEncodedSeries
-from tree import Node, ID3NodeData
+from .utils import gain, entropy, majority_error, gini_index, unique_proba
+from .preprocessing import CatEncodedDataFrame, CatEncodedSeries
+from .tree import Node, ID3NodeData
 
 class ID3:
     def __init__(self, metric, max_depth=None):

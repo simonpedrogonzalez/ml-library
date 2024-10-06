@@ -43,12 +43,6 @@ def gain(X: np.ndarray, y: np.ndarray, feature: int, feature_values: list, metri
             w_metric_subsets[i] = subset_metric * subset_weight
 
     return total_metric - np.sum(w_metric_subsets)
-    
-def argmin(arr):
-    return min(enumerate(arr), key=lambda x: x[1])
-
-def argmax(arr):
-    return max(enumerate(arr), key=lambda x: x[1])
 
 def avg_error(y_true, y_pred):
     return np.mean(y_true != y_pred)
