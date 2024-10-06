@@ -164,24 +164,24 @@ cython_debug/
 *.zip
 **/**/**/__MACOSX/
 
-decision-tree/reports/h1e22_report.csv
+decision_tree/reports/h1e22_report.csv
 
-decision-tree/reports/h1e22_report.tex
+decision_tree/reports/h1e22_report.tex
 
-decision-tree/reports/h1e316_report.csv
+decision_tree/reports/h1e316_report.csv
 
-decision-tree/reports/h1e316_report.tex
+decision_tree/reports/h1e316_report.tex
 
-decision-tree/profile.txt
+decision_tree/profile.txt
 
-decision-tree/e2.py
+decision_tree/e2.py
 
-decision-tree/e3.py
+decision_tree/e3.py
 
-decision-tree/e3c.py
+decision_tree/e3c.py
 
-decision-tree/ex1.py
+decision_tree/ex1.py
 
 profile.sh
 
-decision-tree/time_report.txt
+decision_tree/time_report.txt
