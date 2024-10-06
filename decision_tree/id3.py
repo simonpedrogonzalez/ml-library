@@ -1,8 +1,8 @@
-
+import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 import numpy as np
 import pandas as pd
-from .utils import gain, entropy, majority_error, gini_index, unique_proba
-from .preprocessing import CatEncodedDataFrame, CatEncodedSeries
+from utils.stats import gain, entropy, majority_error, gini_index, unique_proba
+from utils.preprocessing import CatEncodedDataFrame, CatEncodedSeries
 from .tree import Node, ID3NodeData
 
 class ID3:

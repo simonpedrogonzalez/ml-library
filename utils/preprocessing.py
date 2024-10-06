@@ -1,10 +1,13 @@
+import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 import pandas as pd
 import numpy as np
+from data.datasets import Dataset
 
 def transform_num_to_bin_median(X: pd.DataFrame):
     """
     Binarize numerical features in a DataFrame using median.
     """
+    X = X.copy()
     for feature in X.columns:
         if X[feature].dtype.kind in 'iufc': # integer, unsigned integer, float, complex
             median = X[feature].median()
@@ -19,6 +22,8 @@ def impute_mode(X: pd.DataFrame, nan_value=None):
     Impute missing values with the most common value in each column.
     Does not work for continuous numerical features.
     """
+
+    X = X.copy()
 
     if nan_value is None:
         nan_value = np.nan
@@ -115,3 +120,14 @@ class CatEncodedDataFrame:
         
     def _test(self, X, decoded_X):
         assert X.equals(decoded_X)
+
+def dataset_to_cat_encoded_dataset(dataset: Dataset):
+    new_train = dataset.train.copy()
+    new_test = dataset.test.copy()
+    new_train_labels = dataset.train_labels.copy()
+    new_test_labels = dataset.test_labels.copy()
+    new_train = CatEncodedDataFrame().from_pandas(new_train)
+    new_test = CatEncodedDataFrame().from_pandas(new_test)
+    new_train_labels = CatEncodedSeries().from_pandas(new_train_labels)
+    new_test_labels = CatEncodedSeries().from_pandas(new_test_labels)
+    return Dataset(train=new_train, test=new_test, train_labels=new_train_labels, test_labels=new_test_labels)

@@ -1,7 +1,5 @@
 # ml-library
 This is a machine learning library developed by Simon Gonzalez for CS5350/6350 in University of Utah
 
-## Homework 1: Decision Trees
-### Running the code
-
-Execute the run.sh script to run the code that generates the reports. It takes a while to run, progress is printed to the console.
+- HW1 Decision Tree: run `run_h1.sh`
+- HW2 Bagging and Boosting: run `run_h2.sh`
