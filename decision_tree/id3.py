@@ -21,23 +21,39 @@ class ID3:
     def _preprocess(self, data, labels):
         if isinstance(data, pd.DataFrame):
             data = CatEncodedDataFrame().from_pandas(data)
-        if not isinstance(data, CatEncodedDataFrame):
+        if isinstance(data, CatEncodedDataFrame):
+            self.X = data.X
+            self.features = data.features
+            self.feature_index = data.feature_index
+            self.feature_values = data.feature_values
+            self.c2s = data.c2s
+            self.s2c = data.s2c
+        elif isinstance(data, np.ndarray):
+            self.X = data
+            self.features = list(range(data.shape[1]))
+            self.feature_index = list(range(data.shape[1]))
+            self.feature_values = {i: np.unique(data[:, i]) for i in range(data.shape[1])}
+            self.c2s = { (i, v): v for i in range(data.shape[1]) for v in np.unique(data[:, i]) }
+            self.s2c = self.c2s
+        else:
             raise ValueError('Invalid data type')
-        self.X = data.X
-        self.features = data.features
-        self.feature_index = data.feature_index
-        self.feature_values = data.feature_values
-        self.c2s = data.c2s
-        self.s2c = data.s2c
+
         if isinstance(labels, pd.Series):
             labels = CatEncodedSeries().from_pandas(labels)
-        if not isinstance(labels, CatEncodedSeries):
+        if isinstance(labels, CatEncodedSeries):
+            self.y = labels.values
+            self.label_values = labels.categories
+            self.label_index = labels.category_index
+            self.lc2s = labels.c2s
+            self.ls2c = labels.s2c
+        elif isinstance(labels, np.ndarray):
+            self.y = labels
+            self.label_values = np.unique(labels)
+            self.label_index = list(range(len(self.label_values)))
+            self.lc2s = { i: v for i, v in enumerate(self.label_values) }
+            self.ls2c = { v: i for i, v in enumerate(self.label_values) }
+        else:
             raise ValueError('Invalid labels type')
-        self.y = labels.values
-        self.label_values = labels.categories
-        self.label_index = labels.category_index
-        self.lc2s = labels.c2s
-        self.ls2c = labels.s2c
 
     def fit(self, X: pd.DataFrame, y: pd.Series, sample_weight: np.ndarray =None):
         """sample_weight: array-like of shape (n_samples,), default=None
@@ -130,6 +146,7 @@ class ID3:
             return self._predict_df(X, self.tree)
         elif isinstance(X, CatEncodedDataFrame):
             X = X.X
+        if isinstance(X, np.ndarray):
             return self._predict_encoded_ndarray(X, self.tree)
         else:
             raise ValueError('Invalid input type')

@@ -191,3 +191,5 @@ ensemble_learning/gradient.py
 decision_tree/h1e2_cars.py.lprof
 
 decision_tree/line_profile.txt
+
+ensemble_learning/time_report.txt
