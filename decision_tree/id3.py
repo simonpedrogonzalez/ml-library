@@ -39,16 +39,20 @@ class ID3:
         self.lc2s = labels.c2s
         self.ls2c = labels.s2c
 
-    def fit(self, X: pd.DataFrame, y: pd.Series):
+    def fit(self, X: pd.DataFrame, y: pd.Series, sample_weight: np.ndarray =None):
+        """sample_weight: array-like of shape (n_samples,), default=None
+        Sample weights. If None, then samples are equally weighted as 1.
+        """
         self._preprocess(X, y)
-        self.tree = self._build_tree(self.X, self.y, self.feature_index, 0)
+        self.w = sample_weight if sample_weight is not None else np.ones(self.X.shape[0])
+        self.tree = self._build_tree(self.X, self.y, self.w, self.feature_index, 0)
         return self
 
-    def _build_tree(self, X: np.ndarray, y:np.ndarray, features:list, depth:int):
+    def _build_tree(self, X: np.ndarray, y:np.ndarray, w:np.ndarray, features:list, depth:int):
 
         node = Node(ID3NodeData())
 
-        label_values, label_counts, label_proba = unique_proba(y)
+        label_values, label_counts, label_proba = unique_proba(y, w)
         majority_label =  label_values[np.argmax(label_counts)]
         majority_label_name = self.lc2s[majority_label]
 
@@ -70,7 +74,7 @@ class ID3:
             return node
 
         # Find best feature to split
-        metric_value, feature_index, best_feature = self._pick_best_feature(X, y, features)
+        metric_value, feature_index, best_feature = self._pick_best_feature(X, y, w, features)
         best_feature_name = self.features[best_feature]
 
         node.data.next_feature = best_feature_name
@@ -100,17 +104,18 @@ class ID3:
                 continue
 
             y_subset = y[subset]
+            w_subset = w[subset]
             new_features = features.copy()
             new_features.pop(feature_index)
 
-            child = self._build_tree(X_subset, y_subset, new_features, depth + 1)
+            child = self._build_tree(X_subset, y_subset, w_subset, new_features, depth + 1)
 
             # add the data to the child node
             child.data.feature = best_feature_name
             child.data.feature_index = best_feature
             child.data.value = value_name
             child.data.value_index = value
-            child_label_values, child_label_counts, child_label_proba = unique_proba(y_subset)
+            child_label_values, child_label_counts, child_label_proba = unique_proba(y_subset, w_subset)
             child.data.label_counts = {k: v for k, v in zip(child_label_values, child_label_counts)}
             child.data.label_proba = {k: v for k, v in zip(child_label_values, child_label_proba)}
 
@@ -157,9 +162,9 @@ class ID3:
             return self._predict_value_one(row, child)
         raise ValueError(f"Value {value} not found")
 
-    def _pick_best_feature(self, X, y, features):
+    def _pick_best_feature(self, X, y, w, features):
         gains = np.array([
-            gain(X, y, feature, self.feature_values[feature], self.metric) \
+            gain(X, y, w, feature, self.feature_values[feature], self.metric) \
                 for feature in features
             ])
         idx = np.argmax(gains)

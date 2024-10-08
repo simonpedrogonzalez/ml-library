@@ -13,24 +13,31 @@
 
         },
         {
+            "name": "Homework 2 Exercise 2a",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2a.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Homework 1 Exercise 2",
             "type": "debugpy",
             "request": "launch",
-            "program": "decision-tree/h1e2_cars.py",
+            "program": "decision_tree/h1e2_cars.py",
             "console": "integratedTerminal"
         },
         {
             "name": "Homework 1 Exercise 3",
             "type": "debugpy",
             "request": "launch",
-            "program": "decision-tree/h1e3_bank.py",
+            "program": "decision_tree/h1e3_bank.py",
             "console": "integratedTerminal"
         },
         {
             "name": "Test ID3",
             "type": "debugpy",
             "request": "launch",
-            "program": "decision-tree/test_id3.py",
+            "program": "decision_tree/test_id3.py",
             "console": "integratedTerminal"
         }
     ]
