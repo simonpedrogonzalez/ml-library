@@ -61,3 +61,20 @@ class Node:
     #     if self.is_leaf():
     #         return 0
     #     return 1 + max([child.get_depth() for child in self.children])
+
+
+class FastNode:
+    """Slighly faster node representation that assumes feature values are 0,1,2,3...
+    So the index of the children list is the value of the feature."""
+
+    def __init__(self, label=None, feature_to_split_by=None):
+        self.children = []
+        self.feature_to_split_by = None
+        self.label = label
+        self.is_leaf = True
+    
+    def add_child(self, node):
+        self.children.append(node)
+        self.is_leaf = False
+
+    
