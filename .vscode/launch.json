@@ -16,7 +16,14 @@
             "name": "Homework 2 Exercise 2a",
             "type": "debugpy",
             "request": "launch",
-            "program": "ensemble_learning/h2e2a.py",
+            "program": "ensemble_learning/h2e2a_adaboost.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2b",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2b_bagged_trees.py",
             "console": "integratedTerminal"
         },
         {

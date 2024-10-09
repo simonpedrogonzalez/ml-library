@@ -14,20 +14,9 @@ class AdaBoost:
         self.predictions = []
 
     def _preprocess(self, data, labels):
-        # self.X = data.X
         self.X = data.X
-        # self.features = data.features
-        # self.feature_index = data.feature_index
-        # self.feature_values = data.feature_values
-        # self.c2s = data.c2s
-        # self.s2c = data.s2c
-        # self.labels = labels
-        # self.y = labels.values
         self.y = labels.values
         self.label_values = labels.categories
-        # self.label_index = labels.category_index
-        # self.lc2s = labels.c2s
-        # self.ls2c = labels.s2c
 
     def fit(self, X: CatEncodedDataFrame, y: CatEncodedSeries):
         self._preprocess(X, y)
