@@ -1,6 +1,6 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 import pandas as pd
-from decision_tree.fastid3 import FastID3
+from decision_tree.fast_id3 import FastID3
 from utils.stats import avg_error
 from utils.preprocessing import dataset_to_cat_encoded_dataset
 from data.datasets import cars_dataset

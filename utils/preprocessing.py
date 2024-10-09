@@ -56,6 +56,17 @@ class CatEncodedSeries:
         self.c2s = None
         self.s2c = None
     
+    def __getitem__(self, indices):
+        new = self._empty_copy()
+        new.values = self.values[indices]
+        return new
+    
+    def __len__(self):
+        """
+        Return the number of rows in self.X (i.e., length of the first dimension).
+        """
+        return self.X.shape[0]
+    
     def from_pandas(self, series: pd.Series):
         self.values, self.categories, self.category_index, self.c2s, self.s2c = self._encode(series)
         return self
@@ -67,6 +78,15 @@ class CatEncodedSeries:
         c2s = {i: v for i, v in enumerate(categories)}
         s2c = {v: i for i, v in enumerate(categories)}
         return s.cat.codes.values, categories, list(range(len(categories))), c2s, s2c
+    
+    def _empty_copy(self):
+        """Returns a copy with no data."""
+        new = CatEncodedSeries()
+        new.categories = self.categories.copy()
+        new.category_index = self.category_index.copy()
+        new.c2s = self.c2s.copy()
+        new.s2c = self.s2c.copy()
+        return new
 
 class CatEncodedDataFrame:
     '''Represent a pandas DataFrame in an integer-encoded format, keeping track
@@ -83,6 +103,17 @@ class CatEncodedDataFrame:
         self.c2s = None
         self.s2c = None
     
+    def __getitem__(self, indices):
+        new = self._empty_copy()
+        new.X = self.X[indices]
+        return new
+
+    def __len__(self):
+        """
+        Return the number of rows in self.X (i.e., length of the first dimension).
+        """
+        return self.X.shape[0]
+
     def from_pandas(self, X: pd.DataFrame):
         self.X, self.features, self.feature_index, self.feature_values, self.c2s, self.s2c = self._encode(X)
         return self
@@ -120,6 +151,16 @@ class CatEncodedDataFrame:
         
     def _test(self, X, decoded_X):
         assert X.equals(decoded_X)
+
+    def _empty_copy(self):
+        """Returns a copy with no data."""
+        new = CatEncodedDataFrame()
+        new.features = self.features.copy()
+        new.feature_index = self.feature_index.copy()
+        new.feature_values = self.feature_values.copy()
+        new.c2s = self.c2s.copy()
+        new.s2c = self.s2c.copy()
+        return new
 
 def dataset_to_cat_encoded_dataset(dataset: Dataset):
     if dataset.train is not None:

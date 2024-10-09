@@ -4,7 +4,7 @@ import pandas as pd
 from data.datasets import bank_dataset
 from utils.preprocessing import dataset_to_cat_encoded_dataset, transform_num_to_bin_median
 from utils.stats import avg_error
-from decision_tree.fastid3 import FastID3
+from decision_tree.fast_id3 import FastID3
 from ensemble_learning.adaboost import AdaBoost
 
 def train_test_run(adaboost, data, n):

@@ -27,6 +27,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Homework 2 Exercise 2d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2d_random_forest.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Homework 1 Exercise 2",
             "type": "debugpy",
             "request": "launch",
@@ -45,6 +52,20 @@
             "type": "debugpy",
             "request": "launch",
             "program": "decision_tree/test_id3.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test Bagged Trees",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/test_bagged_trees.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test ADA",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/test_adaboost.py",
             "console": "integratedTerminal"
         }
     ]

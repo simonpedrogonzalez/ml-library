@@ -49,3 +49,12 @@ def gain(X: np.ndarray, y: np.ndarray, w: np.ndarray, feature: int, feature_valu
 
 def avg_error(y_true, y_pred):
     return np.mean(y_true != y_pred)
+
+def sample(size: int, X: np.ndarray, y: np.ndarray, replace: bool=False):
+    """Input is assumed to support len and indexing"""
+    idx = np.random.choice(range(len(X)), size=size, replace=replace)
+    return X[idx], y[idx]
+
+def bootstrap_sample(X: np.ndarray, y: np.ndarray):
+    """Input is assumed to support len and indexing"""
+    return sample(len(X), X, y, replace=True)

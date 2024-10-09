@@ -11,6 +11,7 @@ class FastID3:
     def __init__(self, metric, max_depth=None):
         self.metric = metric
         self.max_depth = max_depth
+        self.metric_name = metric
         self.metric = {
             'infogain': entropy,
             'majerr': majority_error,
@@ -19,6 +20,10 @@ class FastID3:
         if self.metric is None:
             raise ValueError('Invalid metric')
         self.tree = None
+
+    def copy(self):
+        """Returns an untrained copy of the model"""
+        return FastID3(self.metric_name, self.max_depth)
 
     def _preprocess(self, data, labels):
         if isinstance(data, pd.DataFrame):
