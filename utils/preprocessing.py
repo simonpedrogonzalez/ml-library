@@ -122,12 +122,20 @@ class CatEncodedDataFrame:
         assert X.equals(decoded_X)
 
 def dataset_to_cat_encoded_dataset(dataset: Dataset):
-    new_train = dataset.train.copy()
-    new_test = dataset.test.copy()
-    new_train_labels = dataset.train_labels.copy()
-    new_test_labels = dataset.test_labels.copy()
-    new_train = CatEncodedDataFrame().from_pandas(new_train)
-    new_test = CatEncodedDataFrame().from_pandas(new_test)
-    new_train_labels = CatEncodedSeries().from_pandas(new_train_labels)
-    new_test_labels = CatEncodedSeries().from_pandas(new_test_labels)
+    if dataset.train is not None:
+        new_train = dataset.train.copy()
+        new_train_labels = dataset.train_labels.copy()
+        new_train = CatEncodedDataFrame().from_pandas(new_train)
+        new_train_labels = CatEncodedSeries().from_pandas(new_train_labels)
+    else:
+        new_train = None
+        new_train_labels = None
+    if dataset.test is not None:
+        new_test = dataset.test.copy()
+        new_test_labels = dataset.test_labels.copy()
+        new_test = CatEncodedDataFrame().from_pandas(new_test)
+        new_test_labels = CatEncodedSeries().from_pandas(new_test_labels)
+    else:
+        new_test = None
+        new_test_labels = None
     return Dataset(train=new_train, test=new_test, train_labels=new_train_labels, test_labels=new_test_labels)

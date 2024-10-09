@@ -49,3 +49,27 @@ def bank_dataset():
     test_labels = test['class']
     test = test.drop('class', axis=1)
     return Dataset(train, test, train_labels, test_labels)
+
+def toy_dataset():
+    cols = ['O', 'T', 'H', 'W', 'class']
+    data = [
+        ['S','H','H','W', '-'],
+        ['S','H','H','S', '-'],
+        ['O','H','H','W', '+'],
+        ['R','M','H','W', '+'],
+        ['R','C','N','W', '+'],
+        ['R','C','N','S', '-'],
+        ['O','C','N','S', '+'],
+        ['S','M','H','W', '-'],
+        ['S','C','N','W', '+'],
+        ['R','M','N','W', '+'],
+        ['S','M','N','S', '+'],
+        ['O','M','H','S', '+'],
+        ['O','H','N','W', '+'],
+        ['R','M','H','S', '-']
+    ]
+
+    df = pd.DataFrame(data, columns=cols)
+    train = df.drop('class', axis=1)
+    train_labels = df['class']
+    return Dataset(train, None, train_labels, None)
