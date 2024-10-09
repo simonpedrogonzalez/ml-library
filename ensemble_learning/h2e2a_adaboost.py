@@ -7,6 +7,7 @@ from utils.stats import avg_error
 from decision_tree.fast_id3 import FastID3
 from ensemble_learning.adaboost import AdaBoost
 
+
 def train_test_run(adaboost, data, n):
     train, train_labels, test, test_labels = data.train, data.train_labels, data.test, data.test_labels
     if n == 1:
@@ -21,6 +22,20 @@ def train_test_run(adaboost, data, n):
     train_error = avg_error(train_pred, train_labels.values)
     test_error = avg_error(test_pred, test_labels.values)
     return train_error, test_error
+
+def unweighted_errors_of_each_learner(adaboost, data):
+    train, train_labels, test, test_labels = data.train, data.train_labels, data.test, data.test_labels
+    learners = adaboost.trained_learners
+    train_errors = []
+    test_errors = []
+    for i, learner in enumerate(learners):
+        train_pred = learner.predict(train)
+        test_pred = learner.predict(test)
+        train_error = avg_error(train_pred, train_labels.values)
+        test_error = avg_error(test_pred, test_labels.values)
+        train_errors.append(train_error)
+        test_errors.append(test_error)
+    return train_errors, test_errors
 
 def report(data):
     max_n = 500
@@ -37,9 +52,26 @@ def report(data):
 
     print("Exporting report for exercise 2a...")
     df = pd.DataFrame(results, columns=['n', 'train_error', 'test_error'])
-    df.to_csv('ensemble_learning/reports/h2e2a_report.csv', index=False)
-    df.to_latex('ensemble_learning/reports/h2e2a_report.tex', index=False, longtable=True)
+    df.to_csv('ensemble_learning/reports/h2e2a_1st_report.csv', index=False)
 
+    print("Evaluating single learner errors...")
+    train_errors, test_errors = unweighted_errors_of_each_learner(adaboost, data)
+    learners = list(range(1, len(train_errors) + 1))
+    print("Exporting single learner errors...")
+    df = pd.DataFrame({'t': learners, 'train_error': train_errors, 'test_error': test_errors})
+    df.to_csv('ensemble_learning/reports/h2e2a_2nd_report.csv', index=False)
+    
+    # single tree run
+    print("Evaluating single tree run...")
+    id3 = FastID3('infogain')
+    id3.fit(data.train, data.train_labels)
+    train_pred = id3.predict(data.train)
+    test_pred = id3.predict(data.test)
+    train_error = avg_error(train_pred, data.train_labels.values)
+    test_error = avg_error(test_pred, data.test_labels.values)
+    print(f"Train Error: {round(train_error, 3)}, Test Error: {round(test_error, 3)}")
+    df = pd.DataFrame([[train_error, test_error]], columns=['train_error', 'test_error'])
+    df.to_csv('ensemble_learning/reports/h2e2a_3rd_report.csv', index=False)
 
 data = bank_dataset()
 data.train = transform_num_to_bin_median(data.train)

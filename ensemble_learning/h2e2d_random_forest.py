@@ -47,7 +47,6 @@ def report(data):
     df.to_csv('ensemble_learning/reports/h2e2d_report.csv', index=False)
     df.to_latex('ensemble_learning/reports/h2e2d_report.tex', index=False, longtable=True)
 
-
 data = bank_dataset()
 data.train = transform_num_to_bin_median(data.train)
 data.test = transform_num_to_bin_median(data.test)
