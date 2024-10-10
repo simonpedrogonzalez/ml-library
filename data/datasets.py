@@ -79,6 +79,19 @@ def credit_card_default_dataset():
     df = pd.read_excel('data/credit_card_default/credit_card_default.xls', header=1, skiprows=0)
     df = df.drop('ID', axis=1)
     
+    cat_cols = ["SEX", "EDUCATION", "MARRIAGE"]
+
+    # PAY_... are -1 pay duly, 1 month delay, 2 month delay, ..., 9 month delay or more
+    # They are set as category since they have too low cardinality and their distribution
+    # is heavily skewed to the left
+    pay_cols = ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]
+    cat_cols += pay_cols
+
+    for col in cat_cols:
+        df[col] = df[col].astype('category')
+
+    # BILL_AMT... and PAY_AMT... are numerical
+
     train_size = 24000
     train = df.sample(n=train_size, random_state=0)
     test = df.drop(train.index)
