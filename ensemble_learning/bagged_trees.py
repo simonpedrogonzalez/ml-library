@@ -1,13 +1,22 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 from utils.preprocessing import CatEncodedDataFrame, CatEncodedSeries
-from utils.stats import bootstrap_sample
+from utils.stats import sample
 from ensemble_learning.ensemble import Ensemble
 import numpy as np
 
 class BaggedTrees(Ensemble):
 
+    def __init__(self, learner_model, n_learners, sample_size=None):
+        self.sample_size = sample_size if sample_size is not None else 'bootstrap'
+        super().__init__(learner_model, n_learners)
+
+    def fit(self, X: CatEncodedDataFrame, y: CatEncodedSeries):
+        if self.sample_size == 'bootstrap':
+            self.sample_size = len(X)
+        super().fit(X, y)
+
     def fit_new_learner(self):
-        X, y = bootstrap_sample(self.X, self.y)
+        X, y = sample(self.sample_size, self.X, self.y, replace=True)
         tree = self.learner_model.copy()
         tree.fit(X, y)
         self.trained_learners.append(tree)
