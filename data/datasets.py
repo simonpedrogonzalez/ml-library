@@ -90,3 +90,14 @@ def credit_card_default_dataset():
 
     return Dataset(train, test, train_labels, test_labels)
 
+def concrete_slump_dataset():
+    df = pd.read_csv('data/concrete_slump/slump_test.data')
+    df = df.drop('No', axis=1)
+    train_size = 53
+    train = df.sample(n=train_size, random_state=0)
+    test = df.drop(train.index)
+    train_labels = train['Compressive Strength (28-day)(Mpa)']
+    train = train.drop('Compressive Strength (28-day)(Mpa)', axis=1)
+    test_labels = test['Compressive Strength (28-day)(Mpa)']
+    test = test.drop('Compressive Strength (28-day)(Mpa)', axis=1)
+    return Dataset(train, test, train_labels, test_labels)
