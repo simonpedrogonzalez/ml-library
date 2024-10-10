@@ -1,4 +1,5 @@
 import pandas as pd
+from utils.stats import sample
 
 class Dataset:
     def __init__(self, train, test, train_labels, test_labels):
@@ -73,3 +74,19 @@ def toy_dataset():
     train = df.drop('class', axis=1)
     train_labels = df['class']
     return Dataset(train, None, train_labels, None)
+
+def credit_card_default_dataset():
+    df = pd.read_excel('data/credit_card_default/credit_card_default.xls', header=1, skiprows=0)
+    df = df.drop('ID', axis=1)
+    
+    train_size = 24000
+    train = df.sample(n=train_size, random_state=0)
+    test = df.drop(train.index)
+    
+    train_labels = train['default payment next month']
+    train = train.drop('default payment next month', axis=1)
+    test_labels = test['default payment next month']
+    test = test.drop('default payment next month', axis=1)
+
+    return Dataset(train, test, train_labels, test_labels)
+
