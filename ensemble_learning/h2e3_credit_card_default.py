@@ -53,17 +53,28 @@ def report(data):
         progress = round(n / max_n, 2)
         
         error_message = f"{n} "
-        for model_name, step_error in step_errors.items():
-            train_error = step_error['train_error']
-            test_error = step_error['test_error']
+        for se in step_errors:
+            model_name = se['model']
+            train_error = se['train_error']
+            test_error = se['test_error']
             error_message += f", {model_name} train_e: {round(train_error, 3)}, t_e: {round(test_error, 3)}"
             errors.append([n, model_name, train_error, test_error])
         error_message += f", Time: {et}s, Progress: {progress * 100:.2f}%"
         print(error_message)
 
     print("Exporting report for exercise 3...")
-    df = pd.DataFrame(results, columns=['n' 'model', 'train_error', 'test_error'])
+    df = pd.DataFrame(errors, columns=['n', 'model', 'train_error', 'test_error'])
     df.to_csv('ensemble_learning/reports/h2e3_report.csv', index=False)
+
+    single_tree = bt.trained_learners[0]
+    train_pred = single_tree.predict(data.train)
+    test_pred = single_tree.predict(data.test)
+    train_error = avg_error(train_pred, data.train_labels.values)
+    test_error = avg_error(test_pred, data.test_labels.values)
+    print(f"Single tree train error: {round(train_error, 3)}, test error: {round(test_error, 3)}")
+    df2 = pd.DataFrame({'train_error': [train_error], 'test_error': [test_error]})
+    df2.to_csv('ensemble_learning/reports/h2e3_single_tree_report.csv', index=False)
+
 
 data = credit_card_default_dataset()
 # Use 4 bins for each numerical feature based on quantiles

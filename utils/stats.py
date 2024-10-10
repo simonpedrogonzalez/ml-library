@@ -58,3 +58,6 @@ def sample(size: int, X: np.ndarray, y: np.ndarray, replace: bool=False):
 def bootstrap_sample(X: np.ndarray, y: np.ndarray):
     """Input is assumed to support len and indexing"""
     return sample(len(X), X, y, replace=True)
+
+def mse(y_true, y_pred):
+    return np.mean((y_true - y_pred) ** 2)

@@ -34,6 +34,13 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Homework 2 Exercise 3 Credit Default Dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e3_credit_card_default.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Homework 2 Exercise 2e RF Advantage",
             "type": "debugpy",
             "request": "launch",
