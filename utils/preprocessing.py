@@ -17,6 +17,19 @@ def transform_num_to_bin_median(X: pd.DataFrame):
             X[feature] = np.where(X[feature] > median, gt_median_str, leq_median_str)
     return X
 
+def transform_num_to_cat(X: pd.DataFrame, strat='qcut'):
+    """Use a binning strategy to categorize numerical features."""
+    X = X.copy()
+
+    binnin_strats = {
+        'qcut': lambda x: pd.qcut(x, q=4, labels=False), # take a pd series
+    }
+
+    for feature in X.columns:
+        if X[feature].dtype.kind in 'iufc': # integer, unsigned integer, float, complex
+            X[feature] = binnin_strats[strat](X[feature])
+    return X
+
 def impute_mode(X: pd.DataFrame, nan_value=None):
     """
     Impute missing values with the most common value in each column.
@@ -65,7 +78,7 @@ class CatEncodedSeries:
         """
         Return the number of rows in self.X (i.e., length of the first dimension).
         """
-        return self.X.shape[0]
+        return len(self.values)
     
     def from_pandas(self, series: pd.Series):
         self.values, self.categories, self.category_index, self.c2s, self.s2c = self._encode(series)
