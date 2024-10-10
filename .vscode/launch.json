@@ -27,6 +27,20 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Homework 2 Exercise 2c Bagging Advantage",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2c_bagging_advantage.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2e RF Advantage",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2e_random_forest_advantage.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Homework 2 Exercise 2d",
             "type": "debugpy",
             "request": "launch",
