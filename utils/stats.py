@@ -61,3 +61,26 @@ def bootstrap_sample(X: np.ndarray, y: np.ndarray):
 
 def mse(y_true, y_pred):
     return np.mean((y_true - y_pred) ** 2)
+
+def endless_batch_generator(X: np.ndarray, y: np.ndarray, batch_size: int, random: bool=True):
+    """Endless batch generator: starts over when it reaches the end"""
+    while True:
+        batch_gen = batch_generator(X, y, batch_size, random)
+        while True:
+            try:
+                yield next(batch_gen)
+            except StopIteration:
+                break
+
+def batch_generator(X: np.ndarray, y: np.ndarray, batch_size: int, random: bool=True):
+    """Batch generator"""
+    n = len(X)
+    n_batches = n // batch_size
+    indices = np.arange(n)
+    
+    if random:
+        np.random.shuffle(indices)
+
+    for i in range(n_batches):
+        batch = indices[i*batch_size:(i+1)*batch_size]
+        yield X[batch], y[batch]

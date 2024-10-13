@@ -25,3 +25,5 @@ echo "Exercise 3 Credit Card Default dataset"
 python3 ensemble_learning/h2e3_credit_card_default.py
 
 # Exercise 4
+echo "Exercise 4 Linear Regression"
+python3 linear_regression/h2e4.py

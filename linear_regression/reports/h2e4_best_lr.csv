@@ -1,0 +1,3 @@
+model,best_lr,max_iter
+BatchGradientDescent,1.862645149230957e-09,1742
+StochasticGradientDescent,2.9802322387695312e-08,124

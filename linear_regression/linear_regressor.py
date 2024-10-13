@@ -3,16 +3,18 @@ import numpy as np
 
 class LinearRegressor(ABC):
 
-    def __init__(self, initial_weights='zeros'):
+    def __init__(self, initial_weights=0):
         self.initial_weights = initial_weights
 
     def fit(self, X: np.array , y: np.array):
         self.X = self._augment(X)
         self.X_T = self.X.T
         self.y = y
-        if self.initial_weights == 'zeros':
-            self.w = np.zeros(X.shape[1] + 1)
-        self.w = self._fit()
+        if isinstance(self.initial_weights, int):
+            self.w = np.ones(self.X.shape[1]) * self.initial_weights
+        else:
+            self.w = self.initial_weights
+        self._fit()
         return self
 
     @abstractmethod
@@ -29,4 +31,4 @@ class AnalyticalRegressor(LinearRegressor):
 
     def _fit(self):
         X, y, X_T = self.X, self.y, self.X_T
-        self.w = (X_T @ X).I @ X_T @ y
+        self.w = np.linalg.inv(X_T @ X) @ X_T @ y

@@ -1,67 +1,74 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 from linear_regression.linear_regressor import LinearRegressor
-from utils.stats import sample
+from utils.stats import endless_batch_generator, mse
+import numpy as np
 
-class GradientDescent(LinearRegressor):
+class BatchGradientDescent(LinearRegressor):
 
-    def __init__(self, lr=0.01, ntol=1e-6, n_iter=1000):
+    def __init__(self, lr=0.01, atol=1e-6, batch_size=None, max_iter=1000):
         self.lr = lr
-        self.ntol = ntol
-        self.n_iter = n_iter
+        self.atol = atol
+        self.max_iter = max_iter
+        self.n_iter = 0
+        self.batch_size = batch_size
+        self.batch_generator = None
+        self.last_w = None
         super().__init__()
+
+    def _weight_difference(self):
+        return np.linalg.norm(self.w - self.last_w)
     
-    def step(self):
-        self.w = self._step()
+    def _cost_difference(self):
+        return abs(mse(self.X @ self.last_w, self.y) - mse(self.X @ self.w, self.y))
+
+    def converged(self):
+        return self._weight_difference() < self.atol
+    
+    def _reached_max_iter(self):
+        return self.n_iter >= self.max_iter if self.max_iter is not None else False
+
+    def should_stop(self):
+        # Stop if max_iter reached or converged
+        # can disable max_iter by setting it to None
+        return self.n_iter > 0 and (self._reached_max_iter() or self.converged())
+    
+    def _fit(self):
+        self.n_iter = 0
+        if self.batch_size is None: # Bootstrap
+            self.batch_size = self.X.shape[0]
+
+        self.batch_generator = endless_batch_generator(self.X, self.y, self.batch_size, random=False)
+
+        while True:
+            self.step()
+            if self.should_stop():
+                break
+        
         return self
     
-    @abstractmethod
-    def _step(self) -> np.array:
-        pass
+    def step(self):
+        self.last_w = self.w
+        X_batch, y_batch = next(self.batch_generator)
+        w, lr = self.w, self.lr
+        # print(f"x={X_batch}")
+        y_pred = X_batch @ w
+        error = y_pred - y_batch
+        self.w = w - lr * ((X_batch.T @ error) / len(y_batch))
+        if np.isnan(self.w).any():
+             # Obviously diverged
+             # TODO: create an earlier stopping condition
+            raise ValueError("Learning rate too high")
+        # print(f"w={self.w}")
+        self.n_iter += 1 # keep count of the iters
+        return self
+
+class StochasticGradientDescent(BatchGradientDescent):
+
+    def __init__(self, lr=0.01, atol=1e-6, max_iter=1000):
+        super().__init__(lr=lr, atol=atol, max_iter=max_iter, batch_size=1)
+
+    def converged(self):
+        """Difference in cost between iterations"""
+        return self._cost_difference() < self.atol
+
     
-    def _should_stop(self, i, w, new_w):
-        # Stop with max number of iterations also just in case
-        return i >= self.n_iter or np.linalg.norm(new_w - w) < self.ntol
-
-    def _fit(self):
-        w = self.w
-        for i in range(self.n_iter):
-            self.step()
-            if self._should_stop(i, w, new_w):
-                break
-            w = new_w
-
-class StochasticGradientDescent(GradientDescent):
-
-    def _step(self):
-        X, y, w, lr = self.X, self.y, self.w, self.lr
-        for i in range(X.shape[0]):
-            y_pred = X[i] @ w
-            error = y_pred - y[i]
-            w = w + lr * X[i] * error
-        return w
-    
-class BatchGradientDescent(GradientDescent):
-
-    def __init__(self, batch_size, *args, **kwargs):
-        self.batch_size = batch_size
-        super().__init__(*args, **kwargs)
-
-    def _get_batches(self):
-        X, y, n, size = self.X, self.y, self.X.shape[0], self.batch_size
-        n_batches = n // size
-        indices = np.random.shuffle(np.arange(n))
-        for i in range(n_batches):
-            if 
-            batch = indices[i*size:(i+1)*size]
-            yield X[batch], y[batch]
-
-        for i in range(n_batches):
-            batch = sample(size, X, y, replace=False)
-
-    def _step(self):
-        X, y, w, lr = self.X, self.y, self.w, self.learning_rate
-        for X_batch, y_batch in self._get_batches():
-            y_pred = X_batch @ w
-            error = y_pred - y_batch
-            w = w - lr * X_batch.T @ error
-        return w
