@@ -7,6 +7,14 @@ class Dataset:
         self.test = test
         self.train_labels = train_labels
         self.test_labels = test_labels
+    
+    def to_numpy(self):
+        return Dataset(
+            self.train.values,
+            self.test.values if self.test is not None else None,
+            self.train_labels.values,
+            self.test_labels.values if self.test_labels is not None else None
+        )
 
 def cars_dataset():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']
@@ -51,7 +59,7 @@ def bank_dataset():
     test = test.drop('class', axis=1)
     return Dataset(train, test, train_labels, test_labels)
 
-def toy_dataset():
+def play_tennis_dataset():
     cols = ['O', 'T', 'H', 'W', 'class']
     data = [
         ['S','H','H','W', '-'],
@@ -103,7 +111,8 @@ def credit_card_default_dataset():
 
     return Dataset(train, test, train_labels, test_labels)
 
-def concrete_slump_dataset():
+def concrete_slump_dataset():\
+
     df = pd.read_csv('data/concrete_slump/slump_test.data')
     df = df.drop('No', axis=1)
     train_size = 53
@@ -114,3 +123,18 @@ def concrete_slump_dataset():
     test_labels = test['Compressive Strength (28-day)(Mpa)']
     test = test.drop('Compressive Strength (28-day)(Mpa)', axis=1)
     return Dataset(train, test, train_labels, test_labels)
+
+def regression_toy_dataset():
+    data = [
+        [1, -1, 2],
+        [1, 1, 3],
+        [-1, 1, 0],
+        [1, 2, -4],
+        [3, -1, -1]
+    ]
+    y = [1, 4, -1, -2, 0]
+
+    df = pd.DataFrame(data, columns=['x1', 'x2', 'x3'])
+    train = df
+    train_labels = pd.Series(y)
+    return Dataset(train, None, train_labels, None)
