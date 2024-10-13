@@ -1,7 +1,7 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 from time import time
 import pandas as pd
-from data.datasets import toy_dataset
+from data.datasets import play_tennis_dataset
 from utils.preprocessing import dataset_to_cat_encoded_dataset, transform_num_to_bin_median
 from utils.stats import avg_error
 from decision_tree.fast_id3 import FastID3
@@ -34,7 +34,7 @@ def report(data):
         results.append([n, train_error, test_error])
 
 
-data = toy_dataset()
+data = play_tennis_dataset()
 data = dataset_to_cat_encoded_dataset(data)
 
 report(data)
