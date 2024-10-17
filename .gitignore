@@ -203,3 +203,7 @@ ensemble_learning/h2e2a.py.lprof
 ensemble_learning/reports/test_report.csv
 
 *.xls#
+
+ensemble_learning/test_sklearn_baggin_advantage.py
+
+ensemble_learning/scikitlearntest.py
