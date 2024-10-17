@@ -39,7 +39,7 @@ def plot_adaboost_errors_over_n(df):
     plt.savefig('ensemble_learning/reports/h2e2a_1st_plot.png')
 
 def plot_single_learner_errors_over_n(df):
-    fig, ax = plt.subplots(figsize=(20, 3))
+    fig, ax = plt.subplots(figsize=(10, 4))
     sns.lineplot(x='t', y='train_error', data=df, ax=ax, label='Train Error')
     sns.lineplot(x='t', y='test_error', data=df, ax=ax, label='Test Error')
     ax.set_xlabel('t')
@@ -49,6 +49,17 @@ def plot_single_learner_errors_over_n(df):
     mark_best_single_tree_of_all(ax)
     ax.legend()
     plt.savefig('ensemble_learning/reports/h2e2a_2nd_plot.png')
+
+def plot_weighted_single_learner_errors_over_n(df):
+    fig, ax = plt.subplots(figsize=(10, 4))
+    # sns.lineplot(x='t', y='test_error', data=df, ax=ax, label='Test Error', color='red', alpha=0.5)
+    sns.lineplot(x='t', y='train_error', data=df, ax=ax)
+    ax.set_xlabel('t')
+    ax.set_ylabel('Error')
+    ax.set_title('Weighted Train Errors of Each Decision Stump')
+    # ax.axhline(0.5, color='black', linestyle='--', label='0.5')
+    ax.legend()
+    plt.savefig('ensemble_learning/reports/h2e2a_4th_plot.png')
 
 def plot_bagged_trees_errors_over_n(df):
     
@@ -128,12 +139,14 @@ df_adaboost = pd.read_csv('ensemble_learning/reports/h2e2a_1st_report.csv')
 df_adaboost_sing_lrn = pd.read_csv('ensemble_learning/reports/h2e2a_2nd_report.csv')
 df_bagged_trees = pd.read_csv('ensemble_learning/reports/h2e2b_report.csv')
 df_random_forest = pd.read_csv('ensemble_learning/reports/h2e2d_report.csv')
+df_adaboost_sing_lrn = pd.read_csv('ensemble_learning/reports/h2e2a_4th_report.csv')
 
-plot_adaboost_errors_over_n(df_adaboost)
-plot_single_learner_errors_over_n(df_adaboost_sing_lrn)
-plot_bagged_trees_errors_over_n(df_bagged_trees)
-plot_bagged_trees_vs_adaboost_test_error(df_adaboost, df_bagged_trees)
-plot_random_forest_errors_over_n(df_random_forest)
-plot_random_forest_vs_bagged_tree_test_error(df_bagged_trees, df_random_forest)
+# plot_adaboost_errors_over_n(df_adaboost)
+# plot_single_learner_errors_over_n(df_adaboost_sing_lrn)
+plot_weighted_single_learner_errors_over_n(df_adaboost_sing_lrn)
+# plot_bagged_trees_errors_over_n(df_bagged_trees)
+# plot_bagged_trees_vs_adaboost_test_error(df_adaboost, df_bagged_trees)
+# plot_random_forest_errors_over_n(df_random_forest)
+# plot_random_forest_vs_bagged_tree_test_error(df_bagged_trees, df_random_forest)
 
 
