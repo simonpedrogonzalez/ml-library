@@ -10,7 +10,7 @@ python3 ensemble_learning/h2e2b_bagged_trees.py
 
 # Exercise 2c
 echo "Exercise 2c Bagged Trees Bias and Variance"
-python3 ensemble_learning/h2e2c_bagged_trees_advantage.py
+python3 ensemble_learning/h2e2c_bagging_advantage.py
 
 # Exercise 2d
 echo "Exercise 2d Random Forest"
