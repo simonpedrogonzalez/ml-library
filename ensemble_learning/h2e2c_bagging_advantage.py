@@ -32,7 +32,7 @@ def report(data):
     # transform from 0 1 labels to -1 1 labels for both predictions and test_labels
     bt_test_predictions = np.where(bt_test_predictions == 0, -1, 1)
     single_learner_test_predictions = np.where(single_learner_test_predictions == 0, -1, 1)
-    test_labels = np.where(test_labels == 0, -1, 1)
+    test_labels = np.where(test_labels.values == 0, -1, 1)
 
     # take the average of the predictions for all 100 runs
     bt_mean_estimation = np.mean(bt_test_predictions, axis=1)
@@ -50,11 +50,24 @@ def report(data):
     sl_mean_var = np.mean(sl_var)
     bt_mean_var = np.mean(bt_var)
 
+    sl_error_est = sl_mean_bias + sl_mean_var
+    bt_error_est = bt_mean_bias + bt_mean_var
+
+    # profilactic check
+    # ssss = []
+    # for i in range(bt_test_predictions.shape[1]):
+    #     ss = ((bt_test_predictions[:, i] - test_labels)**2).sum() / len(test_labels)
+    #     ssss.append(ss)
+    # should_be_error = np.array(ssss).mean()
+    # assert np.isclose(should_be_error, bt_error_est)
+
     df = pd.DataFrame({
         'single_tree_bias': [sl_mean_bias],
         'bagged_tree_bias': [bt_mean_bias],
         'single_tree_variance': [sl_mean_var],
-        'bagged_tree_variance': [bt_mean_var]
+        'bagged_tree_variance': [bt_mean_var],
+        'single_tree_error_estimation': [sl_error_est],
+        'bagged_tree_error_estimation': [bt_error_est]
     })
 
     print(f"Results:\n{df}")
