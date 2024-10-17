@@ -207,3 +207,5 @@ ensemble_learning/reports/test_report.csv
 ensemble_learning/test_sklearn_baggin_advantage.py
 
 ensemble_learning/scikitlearntest.py
+
+*.csv#
