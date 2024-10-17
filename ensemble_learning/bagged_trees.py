@@ -28,6 +28,10 @@ class BaggedTrees(Ensemble):
         for i, tree in enumerate(learners):
             y_preds[:, i] = tree.predict(X)
         # Get a matrix with the count of votes for each label class
+        # We cannot take the mean of the predictions if there 
+        # are more than 2 classes, so we count the predictions for
+        # each class. It is clear that for 2 classes, this method
+        # is equivalent to taking the mean
         voted_y_pred = np.apply_along_axis(
             lambda row: np.bincount(row, minlength=len(self.label_values)),
             axis=1, arr=y_preds)

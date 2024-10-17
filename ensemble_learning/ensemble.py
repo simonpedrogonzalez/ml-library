@@ -29,6 +29,8 @@ class Ensemble(ABC):
 
     @abstractmethod
     def _get_voted_predictions(self, learners_idx: list, X:np.ndarray):
+        """This method will vary depending on the ensemble method.
+        """
         pass
     
     def predict(self, X: CatEncodedDataFrame):

@@ -26,13 +26,13 @@ class AdaBoost(Ensemble):
         self.w = self._update_weights(self.w, self.y.values, y_pred, alpha)
         self.alphas.append(alpha)
         self.trained_learners.append(learner)
-        # print(self.w)
         return self
         
     def _update_weights(self, w: np.ndarray, y: np.ndarray, y_pred: np.ndarray, alpha: float):
         # If there are more than 2 classes, we
-        # can't rely on y_pred*y to get the
-        # error = -1 and ok = 1
+        # can't rely on y_pred*y to get the sign
+        # error = -1 and ok = 1, so we make the comparison
+        # and then turn it into -1 and 1
         comparison = 2 * (y_pred == y).astype(int) - 1 # -1 or 1
         new_w = w * np.exp(-alpha * comparison)
         new_w = new_w / np.sum(new_w) # normalize
