@@ -1,10 +1,10 @@
-\begin{longtable}{lrrrrl}
+\begin{longtable}{lrrlrr}
 \toprule
-Method & Learning Rate & N Iterations & Weights & Train MSE & Test MSE \\
+Method & Learning Rate & N Iterations & Convergence Criterion & Train data Cost & Test data Cost \\
 \midrule
 \endfirsthead
 \toprule
-Method & Learning Rate & N Iterations & Weights & Train MSE & Test MSE \\
+Method & Learning Rate & N Iterations & Convergence Criterion & Train data Cost & Test data Cost \\
 \midrule
 \endhead
 \midrule
@@ -13,11 +13,7 @@ Method & Learning Rate & N Iterations & Weights & Train MSE & Test MSE \\
 \endfoot
 \bottomrule
 \endlastfoot
-Batch Gradient Descent & 0.000000 & 1742.000000 & 54.540490 & 76.838480 & [2.000e-05 6.240e-03 1.750e-03 4.650e-03 4.810e-03 2.300e-04 2.159e-02
- 1.825e-02 3.800e-04 1.170e-03] \\
-Stochastic Gradient Descent & 0.000000 & 124.000000 & 54.286650 & 77.068050 & [3.000e-05 6.730e-03 1.560e-03 4.690e-03 4.820e-03 2.300e-04 2.186e-02
- 1.862e-02 3.500e-04 1.130e-03] \\
-Analytical Regressor & NaN & NaN & 5.442360 & 6.488680 & [ 1.3012936e+02  6.0010000e-02 -3.5360000e-02  4.3440000e-02
- -2.1146000e-01  5.3360000e-02 -4.9880000e-02 -3.4960000e-02
- -3.5742000e-01  1.2576000e-01] \\
+Batch Gradient Descent & 0.500000 & 5456.000000 & $||w_t-w_{t-1}|| \leq 10^{-5}$ & 0.286137 & 0.439811 \\
+Stochastic Gradient Descent & 0.001953 & 200.000000 & $||w_t-w_{t-1}|| \leq 10^{-5}$ & 0.368611 & 0.501612 \\
+Analytical Regressor &  &  &  & 0.286137 & 0.439915 \\
 \end{longtable}

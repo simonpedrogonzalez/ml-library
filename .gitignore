@@ -209,3 +209,17 @@ ensemble_learning/test_sklearn_baggin_advantage.py
 ensemble_learning/scikitlearntest.py
 
 *.csv#
+
+linear_regression/test_gd.py
+
+linear_regression/sklearn_regression.py
+
+linear_regression/reports/h2e4_weights2222.tex
+
+linear_regression/reports/h2e4_final_report2.tex
+
+linear_regression/reports/h2e4_final_report2.csv
+
+linear_regression/reports/h2e4_best_lr.csv.backup
+
+linear_regression/reports/h2e4_best_lr.csv.otherbackup

@@ -1,3 +1,4 @@
+import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 import pandas as pd
 from utils.stats import sample
 
@@ -111,7 +112,7 @@ def credit_card_default_dataset():
 
     return Dataset(train, test, train_labels, test_labels)
 
-def concrete_slump_dataset():\
+def concrete_slump_dataset_original():
 
     df = pd.read_csv('data/concrete_slump/slump_test.data')
     df = df.drop('No', axis=1)
@@ -123,6 +124,19 @@ def concrete_slump_dataset():\
     test_labels = test['Compressive Strength (28-day)(Mpa)']
     test = test.drop('Compressive Strength (28-day)(Mpa)', axis=1)
     return Dataset(train, test, train_labels, test_labels)
+
+def concrete_slump_dataset():
+    train = pd.read_csv('data/concrete/train.csv')
+    test = pd.read_csv('data/concrete/test.csv')
+    train.columns = ['Cement', 'Slag', 'Fly ash', 'Water', 'SP', 'Coarse Aggr', 'Fine Aggr', 'Compressive Strength']
+    test.columns = ['Cement', 'Slag', 'Fly ash', 'Water', 'SP', 'Coarse Aggr', 'Fine Aggr', 'Compressive Strength']
+    train_labels = train['Compressive Strength']
+    train = train.drop('Compressive Strength', axis=1)
+    test_labels = test['Compressive Strength']
+    test = test.drop('Compressive Strength', axis=1)
+    return Dataset(train, test, train_labels, test_labels)
+
+
 
 def regression_toy_dataset():
     data = [

@@ -1,6 +1,6 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 from linear_regression.linear_regressor import LinearRegressor
-from utils.stats import endless_batch_generator, mse
+from utils.stats import endless_batch_generator, mse, cost
 import numpy as np
 
 class BatchGradientDescent(LinearRegressor):
@@ -65,10 +65,7 @@ class BatchGradientDescent(LinearRegressor):
 class StochasticGradientDescent(BatchGradientDescent):
 
     def __init__(self, lr=0.01, atol=1e-6, max_iter=1000):
+        # Do a BGD with batch_size=1 is equivalent to SGD
         super().__init__(lr=lr, atol=atol, max_iter=max_iter, batch_size=1)
-
-    def converged(self):
-        """Difference in cost between iterations"""
-        return self._cost_difference() < self.atol
 
     
