@@ -1,5 +1,6 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 import pandas as pd
+import numpy as np
 from utils.stats import sample
 
 class Dataset:
@@ -152,3 +153,34 @@ def regression_toy_dataset():
     train = df
     train_labels = pd.Series(y)
     return Dataset(train, None, train_labels, None)
+
+
+def income_level_dataset():
+    df = pd.read_csv('data/income_level/train_final.csv')
+    # take 20% of the data for testing
+    train_size = int(0.8 * df.shape[0])
+    train = df.sample(n=train_size, random_state=0)
+    target = "income>50K"
+    test = df.drop(train.index)
+    train_labels = train[target]
+    train = train.drop(target, axis=1)
+    test_labels = test[target]
+    test = test.drop(target, axis=1)
+    # to predict data
+    df2 = pd.read_csv('data/income_level/test_final.csv')
+    df2.drop('ID', axis=1, inplace=True)
+    return Dataset(train, test, train_labels, test_labels, df2)
+
+
+def income_level_dataset_plain():
+    df = pd.read_csv('data/income_level/train_final.csv')
+    df2 = pd.read_csv('data/income_level/test_final.csv')
+    return Dataset(df, None, None, None, df2)
+
+def linearly_separable_toy_dataset():
+    x1 = np.random.normal(0, 1, 100)
+    x2 = np.random.normal(0, 1, 100)
+    y = x1 + x2 + 1
+    y = np.where(y > 0, 1, -1)
+    X = np.c_[x1, x2]
+    return Dataset(X, None, y, None)
