@@ -184,3 +184,21 @@ def linearly_separable_toy_dataset():
     y = np.where(y > 0, 1, -1)
     X = np.c_[x1, x2]
     return Dataset(X, None, y, None)
+
+def bank_note_dataset():
+    train_df = pd.read_csv('data/bank_note/train.csv')
+    test_df = pd.read_csv('data/bank_note/test.csv')
+
+    cols = ['variance', 'skewness', 'curtosis', 'entropy', 'class']
+    train_df.columns = cols
+    test_df.columns = cols
+
+    # transform class from 0, 1 to -1, 1
+    train_df['class'] = train_df['class'].map({0: -1, 1: 1})
+    test_df['class'] = test_df['class'].map({0: -1, 1: 1})
+
+    train_labels = train_df['class']
+    train = train_df.drop('class', axis=1)
+    test_labels = test_df['class']
+    test = test_df.drop('class', axis=1)
+    return Dataset(train, test, train_labels, test_labels)
