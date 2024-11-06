@@ -28,8 +28,9 @@ def train_test_run(model, data):
     return result
 
 def report():
+    np.random.seed(42)
     results = []
-    lr = 0.01
+    lr = 1
     epochs = 10
     data = bank_note_dataset().to_numpy()
     model1 = Perceptron(max_epochs=epochs, lr=lr)
@@ -44,10 +45,8 @@ def report():
     df.drop(columns=['c'], inplace=True)
 
     df.to_csv('perceptron/reports/h3_results.csv', index=False)
-    df.to_csv('perceptron/reports/h3_results.tex', index=False)
+    df.to_latex('perceptron/reports/h3_results.tex', index=False)
 
-    # weights report
-    # create table with cols model, w0, ..., wn, c
     df_w = pd.DataFrame()
     for res in results:
         model_name = res['model']
@@ -63,7 +62,21 @@ def report():
             dfp['model'] = model_name
             dfp['c'] = c
             df_w = pd.concat([df_w, dfp])
+    
+
+
+    for col in df_w.columns:
+        if col not in ['model', 'c']:
+            if df_w[col].dtype == 'float64':
+                df_w[col] = df_w[col].apply(lambda x: int(x) if x.is_integer() else round(x, 3))
+
+
+
+
     df_w.to_csv('perceptron/reports/h3_weights.csv', index=False)
-    df_w.to_latex('perceptron/reports/h3_weights.tex', index=False)
+
+    df_w = df_w.astype(str)
+
+    df_w.to_latex('perceptron/reports/h3_weights.tex', index=False, na_rep='', escape=False) 
 
 report()
