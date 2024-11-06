@@ -65,14 +65,19 @@ def mse(y_true, y_pred):
 def cost(y_true, y_pred):
     return 1/2 * np.mean((y_true - y_pred) ** 2)
 
-def endless_batch_generator(X: np.ndarray, y: np.ndarray, batch_size: int, random: bool=True):
+def endless_batch_generator(X: np.ndarray, y: np.ndarray, batch_size: int, random: bool=True, return_epoch: bool=False):
     """Endless batch generator: starts over when it reaches the end"""
+    epoch = 0
     while True:
         batch_gen = batch_generator(X, y, batch_size, random)
         while True:
             try:
-                yield next(batch_gen)
+                if return_epoch:
+                    yield epoch, next(batch_gen)
+                else:
+                    yield next(batch_gen)
             except StopIteration:
+                epoch += 1
                 break
 
 def batch_generator(X: np.ndarray, y: np.ndarray, batch_size: int, random: bool=True):
