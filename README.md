@@ -7,6 +7,7 @@ Every homework has a `run_h*.sh` script that runs the homework and saves the out
 
 - HW1 Decision Tree: run `run_h1.sh`
 - HW2 Bagging and Boosting: run `run_h2.sh`
+- HW3 Linear Regression: run `run_h3.sh`
 
 ## Library usage
 
