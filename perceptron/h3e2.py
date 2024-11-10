@@ -20,7 +20,7 @@ def train_test_run(model, data):
         'test_error': test_error,
         'epochs': model.epoch,
         'learning_rate': model.lr,
-        'weights': model.w,
+        'weights': model.a if hasattr(model, 'a') else model.w,
         'c': model.c if hasattr(model, 'c') else None
     }
 
