@@ -111,3 +111,22 @@ from linear_regression.linear_regressor import AnalytucalRegressor
 from linear_regression.gradient_descent import \
      BatchGradientDescent, StochasticGradientDescent
 ```
+
+### Perceptron
+
+General usage:
+
+```python
+from perceptron.perceptron import Perceptron
+
+perceptron = Perceptron(max_iter=1000, lr=0.01)
+
+perceptron.fit(train, train_labels)
+y_pred = perceptron.predict(test)
+```
+
+Available perceptrons:
+
+```python
+from perceptron.perceptron import Perceptron, VotedPerceptron, AveragedPerceptron
+```
