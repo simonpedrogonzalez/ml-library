@@ -1,0 +1,7 @@
+model,C,lr_schedule,lr_schedule_params,n_iter,epoch
+PrimalSGDSVM,0.1145475372279496,schedule1,"{'lr0': 0.020000000000000004, 'a': 0.01}",4956,5
+PrimalSGDSVM,0.1145475372279496,schedule2,{'lr0': 0.020000000000000004},7035,8
+PrimalSGDSVM,0.572737686139748,schedule1,"{'lr0': 0.01, 'a': 0.020000000000000004}",33086,37
+PrimalSGDSVM,0.572737686139748,schedule2,{'lr0': 0.01},24597,28
+PrimalSGDSVM,0.8018327605956472,schedule1,"{'lr0': 0.01, 'a': 0.01}",32529,37
+PrimalSGDSVM,0.8018327605956472,schedule2,{'lr0': 0.01},40979,47

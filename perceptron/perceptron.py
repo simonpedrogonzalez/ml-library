@@ -1,7 +1,6 @@
 import sys, os; sys.path.insert(0, os.path.abspath('.')) if os.path.abspath('.') not in sys.path else None
 from utils.stats import endless_batch_generator
 from perceptron.linear_classifier import LinearClassifier
-from ensemble_learning.ensemble import Ensemble
 import numpy as np
 from abc import ABC, abstractmethod
 
