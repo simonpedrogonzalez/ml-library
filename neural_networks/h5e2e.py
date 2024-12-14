@@ -9,7 +9,7 @@ import numpy as np
 from time import time
 from data.datasets import bank_note_dataset
 
-# Define the neural network clas
+
 def create_model(input_size, output_size, hidden_size, n_hidden, activation, initialization):
     layers = []
     for _ in range(n_hidden):
@@ -20,8 +20,11 @@ def create_model(input_size, output_size, hidden_size, n_hidden, activation, ini
             nn.init.kaiming_uniform_(layer.weight, nonlinearity="relu")
         layers.append(layer)
         layers.append(activation)
-    layers.append(nn.Linear(hidden_size, output_size))
-    nn.init.xavier_uniform_(layers[-1].weight) if initialization == "xavier" else None
+    # Final layer
+    final_layer = nn.Linear(hidden_size, output_size)
+    nn.init.xavier_uniform_(final_layer.weight) if initialization == "xavier" else None
+    layers.append(final_layer)
+    layers.append(nn.Sigmoid())  # Ensure outputs are between 0 and 1
     return nn.Sequential(*layers)
 
 def train_model(model, criterion, optimizer, train_loader, device):
@@ -60,7 +63,7 @@ def run_experiment(widths, depths, activations, initialization, train_loader, te
                 for epoch in range(100):
                     train_loss = train_model(model, criterion, optimizer, train_loader, device)
                     test_loss = evaluate_model(model, criterion, test_loader, device)
-
+                    print(f"epoch: {epoch}, activation: {activation_name}, hidden_size: {width}, depth: {depth}, train_loss: {train_loss}, test_loss: {test_loss}")
                     if epoch == 99:
                         results.append({
                             "activation": activation_name,
@@ -73,7 +76,11 @@ def run_experiment(widths, depths, activations, initialization, train_loader, te
     return results
 
 def main():
-    data = bank_note_dataset()
+    data = bank_note_dataset().to_numpy()
+    data.train_labels = (data.train_labels == 1).astype(int)
+    data.test_labels = (data.test_labels == 1).astype(int)
+
+
     X_train = torch.tensor(data.train, dtype=torch.float32)
     y_train = torch.tensor(data.train_labels, dtype=torch.float32).unsqueeze(1)
     X_test = torch.tensor(data.test, dtype=torch.float32)
@@ -92,10 +99,10 @@ def main():
         results.extend(run_experiment(widths, depths, activations, initialization, train_loader, test_loader, X_train.shape[1], device))
 
     df = pd.DataFrame(results)
-    df.to_csv("reports/results_pytorch.csv", index=False)
+    df.to_csv("neural_networks/reports/results_pytorch.csv", index=False)
 
     latex_table = df.to_latex(index=False, float_format="%.4f")
-    with open("reports/results_pytorch.tex", "w") as f:
+    with open("neural_networks/reports/results_pytorch.tex", "w") as f:
         f.write(latex_table)
 
 main()
